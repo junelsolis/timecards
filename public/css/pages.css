@@ -1,0 +1,24 @@
+body {
+  background-color: rgb(229, 229, 229);
+  font-family: 'Raleway', sans-serif;
+}
+
+.container {
+  background-color: white;
+  padding-top: 3%;
+  padding-bottom: 3%;
+}
+
+.container h3 {
+  color: rgb(36,47,64);
+}
+
+/*nav {
+  background-color: rgb(36, 47, 64);
+  color: rgb(229, 229, 229);
+
+}*/
+
+nav a {
+  color: rgb(36,47,64);
+}
