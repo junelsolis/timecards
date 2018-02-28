@@ -4,85 +4,74 @@
     <title>Timecards v2.0</title>
     <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
-
-    <link rel=stylesheet href="https://s3-us-west-2.amazonaws.com/colors-css/2.2.0/colors.min.css">
-    <link href="https://fonts.googleapis.com/css?family=Raleway:200" rel="stylesheet">
-    <style>
-      .vertical-center {
-        min-height: 100%;
-        min-height: 100vh;
-
-        display: flex;
-        align-items: center;
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ asset('semantic/dist/semantic.min.css')}}">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+      integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+      crossorigin="anonymous"></script>
+    <script src="{{ asset('semantic/dist/semantic.min.js')}}"></script>
+    <style type="text/css">
+      body {
+        background-color: #DADADA;
       }
-    </style>
+      body > .grid {
+        height: 100%;
+      }
+      .image {
+        margin-top: -100px;
+      }
+      .column {
+        max-width: 450px;
+      }
+  </style>
   </head>
-  <body style="font-family: 'Raleway', sans-serif;">
-    <div class="vertical-center">
-      <div class="container">
-        <div class="text-center">
-          <img src="/images/maa-logo.png"style="max-width: 180px;" />
-        </div>
-        <br />
-        <h1 style="font-size: 5vmax;"class="text-center navy">TIMECARDS</h1>
-        <form action="/login" method="post">
-          {{ csrf_field() }}
-          <div class="row">
-            <div class="col-md-3"></div>
-            <div class="col-md-6">
-              <br /><br />
-                <div class='text-center'>
-                  <label class="form-check-label">
-                    <input class="form-check-input" type="radio" name="role" value="worker" checked>
-                    Worker&nbsp;&nbsp;
-                  </label>
-                  <label class="form-check-label">
-                    <input class="form-check-input" type="radio" name="role" value="supervisor">
-                    Supervisor&nbsp;&nbsp;
-                  </label>
-                  <label class="form-check-label">
-                    <input class="form-check-input" type="radio" name="role" value="coordinator">
-                    Coordinator&nbsp;&nbsp;
-                  </label>
-                </div>
-
-              <div class="form-group">
-                <br />
-                <label for="username">Username</label>
-                <div class="input-group">
-                  <input type="text" class="form-control" name='username' placeholder="Enter username" id="username" required/>
-                  <span class="input-group-addon" id="username">@maxwellsda.org</span>
-                </div>
-                <br />
-                <label for="password">Password</label>
-                <input type="password" class="form-control" id="password" name='password' placeholder="password" required />
-                </div>
-                @if (session('error'))
-                <div class="alert alert-warning" role="alert">
-                  {{ session('error') }}
-                </div>
-                @endif
-                <br />
-                <div class="text-center">
-                  <button type="submit" class="btn btn-primary">&nbsp;&nbsp;&nbsp;Log in&nbsp;&nbsp;&nbsp;</button><br /><br />
-                  <a href="#" class="gray">Forgot Password</a>
-                </div>
-              </div>
-              <div class="col-md-3"></div>
-          </div>
-        </form>
+<body>
+<div class="ui middle aligned center aligned grid">
+  <div class="column">
+    <h2 class="ui blue image header">
+      <img src="images/maa-logo.png" class="image">
+      <div class="content">
+        Login to Timecards
       </div>
+    </h2>
+    <form class="ui large form">
+      {{ csrf_field() }}
+      <div class="ui stacked segment">
+        <div class="field">
+          <div class="ui left icon input">
+            <i class="user icon"></i>
+            <input type="text" name="email" placeholder="E-mail address" autocomplete="off" style="background-image: url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAASCAYAAABSO15qAAAAAXNSR0IArs4c6QAAAPhJREFUOBHlU70KgzAQPlMhEvoQTg6OPoOjT+JWOnRqkUKHgqWP4OQbOPokTk6OTkVULNSLVc62oJmbIdzd95NcuGjX2/3YVI/Ts+t0WLE2ut5xsQ0O+90F6UxFjAI8qNcEGONia08e6MNONYwCS7EQAizLmtGUDEzTBNd1fxsYhjEBnHPQNG3KKTYV34F8ec/zwHEciOMYyrIE3/ehKAqIoggo9inGXKmFXwbyBkmSQJqmUNe15IRhCG3byphitm1/eUzDM4qR0TTNjEixGdAnSi3keS5vSk2UDKqqgizLqB4YzvassiKhGtZ/jDMtLOnHz7TE+yf8BaDZXA509yeBAAAAAElFTkSuQmCC&quot;); background-repeat: no-repeat; background-attachment: scroll; background-size: 16px 18px; background-position: 98% 50%;">
+          </div>
+        </div>
+        <div class="field">
+          <div class="ui left icon input">
+            <i class="lock icon"></i>
+            <input type="password" name="password" placeholder="Password" autocomplete="off" style="background-image: url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAASCAYAAABSO15qAAAAAXNSR0IArs4c6QAAAPhJREFUOBHlU70KgzAQPlMhEvoQTg6OPoOjT+JWOnRqkUKHgqWP4OQbOPokTk6OTkVULNSLVc62oJmbIdzd95NcuGjX2/3YVI/Ts+t0WLE2ut5xsQ0O+90F6UxFjAI8qNcEGONia08e6MNONYwCS7EQAizLmtGUDEzTBNd1fxsYhjEBnHPQNG3KKTYV34F8ec/zwHEciOMYyrIE3/ehKAqIoggo9inGXKmFXwbyBkmSQJqmUNe15IRhCG3byphitm1/eUzDM4qR0TTNjEixGdAnSi3keS5vSk2UDKqqgizLqB4YzvassiKhGtZ/jDMtLOnHz7TE+yf8BaDZXA509yeBAAAAAElFTkSuQmCC&quot;); background-repeat: no-repeat; background-attachment: scroll; background-size: 16px 18px; background-position: 98% 50%;">
+          </div>
+        </div>
+        <div class="ui fluid large blue submit button">Login</div>
+      </div>
+      <div class="ui yellow message">
+        <i class="close icon"></i>
+        <div class="header">
+          Invalid credentials
+        </div>
+        The email address or password you entered is incorrect.
+      </div>
+    </form>
+
+    <div class="ui message">
+      Forgot your password? <a href="#">Reset</a>
     </div>
-
-
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
-  </body>
+  </div>
+</div>
+<script>$('.message .close')
+  .on('click', function() {
+    $(this)
+      .closest('.message')
+      .transition('fade')
+    ;
+  });
+</script>
+</body>
 </html>
