@@ -217,6 +217,47 @@ class CoordinatorController extends Controller
 
       $departments = DB::table('departments')->get();
 
+      // append additional information
+      foreach ($departments as $item) {
+
+        // get total number of timecards for this department
+        $total = DB::table('timecards')->where('dept_id', $item->id)->count();
+        $item->totalTimecards = $total;
+
+        // count active timecards for this departments
+        $startDate = '';
+        $endDate = '';
+
+        // get three-letter day of the week
+        $day = date('D', strtotime('now'));
+
+        if ($day === 'Sun') {
+
+          $startDate = date('Y-m-d', strtotime('now'));
+          $endDate = date('Y-m-d', strtotime('+6 days'));
+        }
+
+        switch ($day) {
+          case 'Sun':
+            $startDate = date('Y-m-d', strtotime('now'));
+            $endDate = date('Y-m-d', strtotime('+6 days'));
+            break;
+          default:
+            $startDate = date('Y-m-d', strtotime('Sunday last week'));
+            $sun = strtotime('Sunday last week');
+            $end = strtotime('+6 days', $sun);
+            $endDate = date('Y-m-d', $end);
+            break;
+        }
+
+        // count timecards matching date constraints
+        $count = DB::table('timecards')
+          ->where('startDate', $startDate)
+          ->where('endDate', $endDate)
+          ->count();
+
+        $item->activeTimecards = $count;
+      }
       return view('/coordinator/departments')->with('departments', $departments);
     }
     public function showDepartmentsAdd() {}

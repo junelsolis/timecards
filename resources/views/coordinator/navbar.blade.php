@@ -21,6 +21,7 @@
       <a class="item">View Active</a>
       <a class="item">View Unsigned</a>
       <a class="item">View Submitted</a>
+      <a class="item" href="/coordinator/timecards/import">Import</a>
     </div>
   </div>
   <div class="item">
@@ -45,7 +46,7 @@
     <div class="menu">
       <a class="item">Add</a>
       <a class="item">Edit</a>
-      <a class="item">Departments</a>
+      <a class="item" href="/coordinator/departments">Departments</a>
     </div>
   </div>
   <div class="item">

@@ -25,6 +25,15 @@
             <div class="ui segment">
               <form class="ui form left aligned" action="/coordinator/payment-periods/add" method="post">
                 {{ csrf_field() }}
+                @if (session('error'))
+                <div class="ui yellow message">
+                  <i class="close icon"></i>
+                  <div class="header">
+                    Error
+                  </div>
+                  {{ session('error') }}
+                </div>
+                @endif
                 <div class="two fields">
                   <div class="field">
                     <label>Start Date</label>

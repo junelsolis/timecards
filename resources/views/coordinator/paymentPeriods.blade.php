@@ -21,6 +21,15 @@
               <a class="ui primary button" href="/coordinator/payment-periods/add">Add Period</a>
             </div>
             <div class="ui segment">
+              @if (session('msg'))
+              <div class="ui yellow message">
+                <i class="close icon"></i>
+                <div class="header">
+                  Success.
+                </div>
+                {{ session('msg') }}
+              </div>
+              @endif
               @if (isset($periods))
               <div class="ui stackable cards">
                 @foreach ($periods as $item)
