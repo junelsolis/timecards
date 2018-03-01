@@ -215,53 +215,121 @@ class CoordinatorController extends Controller
     public function showDepartments() {
       $this->checkLoggedIn();
 
-      $departments = DB::table('departments')->get();
+      $departments = DB::table('departments')->orderBy('name')->get();
 
       // append additional information
       foreach ($departments as $item) {
 
         // get total number of timecards for this department
-        $total = DB::table('timecards')->where('dept_id', $item->id)->count();
-        $item->totalTimecards = $total;
+          $total = DB::table('timecards')->where('dept_id', $item->id)->count();
+          $item->totalTimecards = $total;
 
         // count active timecards for this departments
-        $startDate = '';
-        $endDate = '';
+          $startDate = '';
+          $endDate = '';
 
-        // get three-letter day of the week
-        $day = date('D', strtotime('now'));
+          // get three-letter day of the week
+          $day = date('D', strtotime('now'));
 
-        if ($day === 'Sun') {
+          if ($day === 'Sun') {
 
-          $startDate = date('Y-m-d', strtotime('now'));
-          $endDate = date('Y-m-d', strtotime('+6 days'));
-        }
-
-        switch ($day) {
-          case 'Sun':
             $startDate = date('Y-m-d', strtotime('now'));
             $endDate = date('Y-m-d', strtotime('+6 days'));
-            break;
-          default:
-            $startDate = date('Y-m-d', strtotime('Sunday last week'));
-            $sun = strtotime('Sunday last week');
-            $end = strtotime('+6 days', $sun);
-            $endDate = date('Y-m-d', $end);
-            break;
-        }
+          }
 
-        // count timecards matching date constraints
-        $count = DB::table('timecards')
-          ->where('startDate', $startDate)
-          ->where('endDate', $endDate)
-          ->count();
+          switch ($day) {
+            case 'Sun':
+              $startDate = date('Y-m-d', strtotime('now'));
+              $endDate = date('Y-m-d', strtotime('+6 days'));
+              break;
+            default:
+              $startDate = date('Y-m-d', strtotime('Sunday last week'));
+              $sun = strtotime('Sunday last week');
+              $end = strtotime('+6 days', $sun);
+              $endDate = date('Y-m-d', $end);
+              break;
+          }
 
-        $item->activeTimecards = $count;
+          // count timecards matching date constraints
+          $count = DB::table('timecards')
+            ->where('startDate', $startDate)
+            ->where('endDate', $endDate)
+            ->count();
+
+          $item->activeTimecards = $count;
+
+        // count number of supervisors for this department
+          $count = DB::table('superv_depts')->where('dept_id', $item->id)->count();
+          if ($count == 1) { $count = "1 supervisor"; } else { $count = $count . " supervisors"; }
+          $item->supervisorCount = $count;
+
+        // count number of workers for this department
+          $count = DB::table('worker_depts')->where('dept_id', $item->id)->count();
+          if ($count == 1) { $count = "1 worker"; } else { $count = $count . " workers"; }
+          $item->workerCount = $count;
+
       }
+
+
       return view('/coordinator/departments')->with('departments', $departments);
     }
-    public function showDepartmentsAdd() {}
-    public function departmentsAdd(Request $request) {}
+    public function showDepartmentsAdd() {
+      $this->checkLoggedIn();
+
+      // get all supervisors
+      $supervisors = DB::table('supervisors')->orderBy('lastname')->get();
+
+      // modify supervisors collection
+      foreach ($supervisors as $item) {
+        $firstname = $item->firstname;
+        $lastname = $item->lastname;
+
+        $fullname = $firstname . " " . $lastname;
+
+        $item->fullname = $fullname;
+      }
+
+
+      return view('/coordinator/departmentsAdd')->with('supervisors', $supervisors);
+
+
+    }
+    public function departmentsAdd(Request $request) {
+      // validation
+      $request->validate([
+        'name' => 'string|required|between:1,40',
+        'supervisors' => 'nullable'
+      ]);
+
+      $name = $request['name'];
+      $supervisors = $request['supervisors'];
+
+      // check that department does not already exist
+      $count = DB::table('departments')->where('name', $name)->count();
+
+      if ($count != 0) {
+        return back()->with('error', "That department already exists. Consider editing the department instead.");
+      }
+
+      // if department does not exist run the following code
+
+      // insert new department entry and get auto increment ID
+      $id = DB::table('departments')->insertGetId(['name' => $name]);
+
+      // if supervisors have been selected, include entries for them.
+      if (count($supervisors) > 0) {
+        foreach ($supervisors as $item) {
+          DB::table('superv_depts')->insert([
+            'superv_id' => $item,
+            'dept_id' => $id
+          ]);
+        }
+
+
+      }
+
+      return redirect('/coordinator/departments')->with('msg', "Department successfully created.");
+    }
 
     public function showWorkerAdd() {
       $this->checkLoggedIn();

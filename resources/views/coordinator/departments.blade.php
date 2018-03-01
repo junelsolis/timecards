@@ -15,24 +15,24 @@
     <div class="ui">
       @include('/coordinator/navbar')
       <div class="ui grid" style="margin: 1%;">
-          <div class="twelve wide column">
+          <div class="thirteen wide column">
             <div class="ui segment center aligned">
               <h1 class="header">Departments</h1>
               <div class="text">
                 Each supervisor and worker belongs to at least one department.
               </div><br />
               <a class="ui primary button" href="/coordinator/departments/add">Add Department</a>
-            </div>
-            <div class="ui segment">
               @if (session('msg'))
               <div class="ui yellow message">
                 <i class="close icon"></i>
                 <div class="header">
-                  Success.
+                  {{ session('msg') }}
                 </div>
-                {{ session('msg') }}
               </div>
               @endif
+            </div>
+
+            <div class="ui segment">
               @if (isset($departments))
               <div class="ui stackable cards">
                 @foreach ($departments as $item)
@@ -42,7 +42,7 @@
                   </div>
                   <div class="content">
                     <div class="header">
-                      Department
+                      {{ $item->name }}
                     </div>
                     <div class="meta">
                       {{ $item->totalTimecards }} Timecards<br />
@@ -50,8 +50,8 @@
                     </div>
                   </div>
                   <div class="extra content">
-                    <i class="user icon"></i>2 supervisors<br />
-                    <i class="user icon"></i>15 workers
+                    <i class="user outline icon"></i>{{ $item->supervisorCount }}<br />
+                    <i class="user icon"></i>{{ $item->workerCount }}
                   </div>
                 </div>
                 @endforeach

@@ -45,5 +45,5 @@ Route::get('/coordinator/timecards/unsigned', 'CoordinatorController@showTimecar
 Route::get('/coordinator/timecards/submitted', 'CoordinatorController@showTimecardsSubmitted');
 
 Route::get('/coordinator/departments', 'CoordinatorController@showDepartments');
-Route::get('/coordiantor/departments/add', 'CoordinatorController@showDepartmentsAdd');
+Route::get('/coordinator/departments/add', 'CoordinatorController@showDepartmentsAdd');
 Route::post('/coordinator/departments/add', 'CoordinatorController@departmentsAdd');

@@ -10,7 +10,6 @@
       crossorigin="anonymous"></script>
     <script src="{{ asset('semantic/dist/semantic.min.js')}}"></script>
   </head>
-  @include('/coordinator/navbar')
   <body>
     <div class="ui">
       @include('/coordinator/navbar')
