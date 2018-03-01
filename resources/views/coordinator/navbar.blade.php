@@ -30,14 +30,14 @@
       <a class="item">Pay</a>
       <a class="item">Generate Report</a>
       <a class="item" href="/coordinator/payment-periods">Payment Periods</a>
-      <a class="item">Set Payscale</a>
+      <a class="item" href="/coordinator/payments/payscale">Set Payscale</a>
     </div>
   </div>
   <div class="item">
     <div class="header">Workers</div>
     <div class="menu">
-      <a class="item">Add</a>
-      <a class="item">Edit</a>
+      <a class="item" href="/coordinator/worker/add">Add</a>
+      <a class="item" href="/coordinator/worker/edit">View</a>
       <a class="item">Attendance</a>
     </div>
   </div>
@@ -45,7 +45,7 @@
     <div class="header">Supervisors</div>
     <div class="menu">
       <a class="item">Add</a>
-      <a class="item">Edit</a>
+      <a class="item" href="/coordinator/supervisor/edit">View</a>
       <a class="item" href="/coordinator/departments">Departments</a>
     </div>
   </div>

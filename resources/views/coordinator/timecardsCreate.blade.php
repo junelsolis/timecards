@@ -24,7 +24,11 @@
                   <label>Start Date</label>
                   <input type="date" name="startDate" required />
                 </div>
-                <button class="ui button blue" type="submit">Create</button>
+                <div class="ui buttons">
+                  <button class="ui button blue" type="submit">Create</button>
+                  <div class="or"></div>
+                  <a class="ui button grey" href="/coordinator">Cancel</a>
+                </div>
               </form>
               @if(session('error'))
               <div class="ui yellow message">

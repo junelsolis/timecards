@@ -353,8 +353,9 @@ class CoordinatorController extends Controller
         'username' => 'email|required',
         'firstname' => 'string|required',
         'lastname' => 'string|required',
-        'departments' => 'array|required'
+        'departments' => 'array'
       ]);
+
 
       // assign and sanitize inputs
       $username = strtolower($request['username']);
@@ -375,15 +376,12 @@ class CoordinatorController extends Controller
       }
 
       // enter worker into db
-      DB::table('workers')->insert([
+      $id = DB::table('workers')->insertGetId([
         'firstname' => $firstname,
         'lastname' => $lastname,
         'email' => $username,
         'token' => $token
       ]);
-
-      // get new worker id and insert department entries
-      $id = DB::table('workers')->where('email', $username)->pluck('id')->first();
 
       foreach ($departments as $i) {
         DB::table('worker_depts')->insert([
@@ -392,7 +390,7 @@ class CoordinatorController extends Controller
         ]);
       }
 
-      return redirect('/coordinator')->with('msg', 'Worker successfully added and e-mail sent.');
+      return redirect('/coordinator/worker/add')->with('msg', 'Worker successfully added.');
 
     }
     public function showWorkerEdit() {
@@ -410,6 +408,46 @@ class CoordinatorController extends Controller
         $item->firstname = $worker->firstname;
         $item->lastname = $worker->lastname;
         $item->fullname = $worker->firstname . ' ' . $worker->lastname;
+
+        // get total timecards for each worker
+        $totalTimecards = DB::table('timecards')->where('worker_id', $worker->id)->count();
+        $item->totalTimecards = $totalTimecards;
+
+        // get total active timecards for each worker
+          // empty strings to hold start and end dates
+          $startDate = '';
+          $endDate = '';
+
+          // get three-letter day of the week
+          $day = date('D', strtotime('now'));
+
+          if ($day === 'Sun') {
+
+            $startDate = date('Y-m-d', strtotime('now'));
+            $endDate = date('Y-m-d', strtotime('+6 days'));
+          }
+
+          switch ($day) {
+            case 'Sun':
+              $startDate = date('Y-m-d', strtotime('now'));
+              $endDate = date('Y-m-d', strtotime('+6 days'));
+              break;
+            default:
+              $startDate = date('Y-m-d', strtotime('Sunday last week'));
+              $sun = strtotime('Sunday last week');
+              $end = strtotime('+6 days', $sun);
+              $endDate = date('Y-m-d', $end);
+              break;
+          }
+
+          // count timecards matching date constraints
+          $count = DB::table('timecards')
+            ->where('worker_id', $worker->id)
+            ->where('startDate', $startDate)
+            ->where('endDate', $endDate)
+            ->count();
+
+          $item->activeTimecards = $count;
 
         $items->push($item);
       }
@@ -431,7 +469,22 @@ class CoordinatorController extends Controller
         $i->departments = $array;
       }
 
-      return view('/coordinator/workerEdit')->with('workers', $items);
+      // count all workers
+      $totalWorkers = DB::table('workers')->count();
+
+      // count all departments
+      $totalDepartments = DB::table('departments')->count();
+
+      // count all timecards
+      $totalTimecards = DB::table('timecards')->count();
+      $totalTimecards = number_format($totalTimecards);
+
+      // return view
+      return view('/coordinator/workerEdit')
+        ->with('workers', $items)
+        ->with('totalWorkers', $totalWorkers)
+        ->with('totalDepartments', $totalDepartments)
+        ->with('totalTimecards', $totalTimecards);
 
 
     }
@@ -777,6 +830,57 @@ class CoordinatorController extends Controller
 
     }
     public function paySelectedUnsignedRemind(Request $request) {}
+    public function showPayscale() {
+      $this->checkLoggedIn();
+
+      // get all payscales
+      $payscales = DB::table('payscale')->get();
+
+      $items = collect();
+
+      foreach ($payscales as $i) {
+        if ($i->grade == "u") {
+          $items->put('Unsatisfactory', $i);
+          continue;
+        }
+
+        if ($i->grade == "s") {
+          $items->put('Satisfactory', $i);
+          continue;
+        }
+
+        if ($i->grade == "o") {
+          $items->put('Outstanding', $i);
+          continue;
+        }
+
+      }
+
+      // return view
+      return view('/coordinator/paymentsPayscale')->with('items', $items);
+    }
+    public function setPayscale(Request $request) {
+      $this->checkLoggedIn();
+
+      // validate form variables
+      $request->validate([
+        'u' => 'required|integer|min:1',
+        's' => 'required|integer|min:1',
+        'o' => 'required|integer|min:1'
+      ]);
+
+      $u = $request['u'];
+      $s = $request['s'];
+      $o = $request['o'];
+
+      // update new values in db
+      DB::table('payscale')->where('grade', 'u')->update(['pay' => $u]);
+      DB::table('payscale')->where('grade', 's')->update(['pay' => $s]);
+      DB::table('payscale')->where('grade', 'o')->update(['pay' => $o]);
+
+      return redirect('/coordinator/payments/payscale')->with('msg', 'Payscale successfully updated.');
+
+    }
 
     public function timecardsImport() {
       $this->checkLoggedIn();
