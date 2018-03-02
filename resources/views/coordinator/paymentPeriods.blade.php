@@ -35,7 +35,7 @@
           </div>
           @endif
           @if (isset($periods))
-          <div class="ui stackable cards">
+          <div class="ui three stackable cards">
             @foreach ($periods as $item)
             <div class="ui raised card">
               <div class="content">
@@ -57,6 +57,9 @@
             @endforeach
           </div>
           @endif
+          <div class="ui divider">
+
+          </div>
         </div>
       </div>
     </div>
