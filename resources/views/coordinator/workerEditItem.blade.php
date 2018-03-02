@@ -10,58 +10,51 @@
       crossorigin="anonymous"></script>
     <script src="{{ asset('semantic/dist/semantic.min.js')}}"></script>
   </head>
-  @include('/coordinator/navbar')
   <body>
-    <div class="ui">
-      @include('/coordinator/navbar')
-      <div class="ui grid" style="margin: 1%;">
-          <div class="thirteen wide column">
-            <div class="ui segment center aligned">
-              <h1 class="header">Modify Worker</h1>
-              <div class="text">
-                Worker information page. Use the form to edit worker information, reset passwords, or change departments.
-              </div>
-              @if (session('msg'))
-              <div class="ui yellow message">
-                <i class="close icon"></i>
-                <div class="header">
-                  {{ session('msg') }}
-                </div>
-              </div>
-              @endif
+    @include('/coordinator/navbar')
+    <div class="pusher" style="margin: 2%;">
+      <div class="ui grid">
+        <div class="ten wide column">
+            <h1 class="header">Modify Worker</h1>
+            <div class="text">
+              Worker information page. Use the form to edit worker information, reset passwords, or change departments.
             </div>
-            <div class="ui two cards">
-              <div class="ui card">
-                <div class="content">
-
-                </div>
-                <div class="meta">
-
-                </div>
-                <div class="description">
-
-                </div>
-                <div class="extra content">
-                  
-                </div>
+            @if (session('msg'))
+            <div class="ui yellow message">
+              <i class="close icon"></i>
+              <div class="header">
+                {{ session('msg') }}
               </div>
             </div>
+            @endif
+          <div class="ui divider">
+            
+          </div>
+          <div class="ui two cards">
+            <div class="ui card">
+              <div class="content">
 
-            <div class="ui segment">
+              </div>
+              <div class="meta">
 
+              </div>
+              <div class="description">
+
+              </div>
+              <div class="extra content">
+
+              </div>
             </div>
+          </div>
+
+          <div class="ui segment">
+
           </div>
       </div>
     </div>
-    <script>$('.ui.sidebar')
-      .sidebar('show');
-    </script>
-    <script>$('.message .close')
-      .on('click', function() {
-        $(this)
-          .closest('.message')
-          .transition('fade')
-        ;
+    <script>
+      $('#toggle').click(function(){
+        $('.ui.sidebar').sidebar('toggle');
       });
     </script>
   </body>
