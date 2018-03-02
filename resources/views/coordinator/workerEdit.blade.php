@@ -83,7 +83,7 @@
                   <div class="extra content">
                     <div class="ui buttons">
                       <a class="compact ui button blue">View</a>
-                      <a class="compact ui basic button green" href="/coordinator/worker/edit/item?={{ $item->id }}">Modify</a>
+                      <a class="compact ui basic button green" href="/coordinator/worker/edit/item?id={{ $item->id }}">Modify</a>
                       <a class="compact ui basic button yellow">Delete</a>
                     </div>
                   </div>

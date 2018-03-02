@@ -491,6 +491,11 @@ class CoordinatorController extends Controller
     public function showWorkerEditItem(Request $request) {
       $this->checkLoggedIn();
 
+      $request->validate([
+        'id' => 'required|integer'
+      ]);
+
+
       // get worker id
       $id = $request['id'];
 
@@ -503,24 +508,26 @@ class CoordinatorController extends Controller
       $worker->short = $short;
 
       // retrieve and add departments array to supervisor object
-      $dept_ids = DB::table('worker_depts')->where('worker_id', $worker->id)->pluck('dept_id');
-      $deptsArray = array();
-      foreach($dept_ids as $id) {
-        $names = DB::table('departments')->where('id', $id)->orderBy('name')->pluck('name');
-        foreach($names as $i) {
-          $deptsArray[] = $i;
-        }
+      $deptIds = DB::table('worker_depts')->where('worker_id', $worker->id)->pluck('dept_id');
+      $workerDepts = collect();
+
+
+
+      foreach ($deptIds as $i) {
+        $dept = DB::table('departments')->where('id', $i)->get();
+        $workerDepts->push($dept);
       }
 
-      $worker->departments = $deptsArray;
+      $worker->deptIds = $deptIds;
+      $worker->workerDepts = $workerDepts;
 
       // get all possible departments and split into two chunks
-      $depts = DB::table('departments')->orderBy('name')->get();
-      $depts = $depts->split(2);
+      $allDepts = DB::table('departments')->orderBy('name')->get();
+      $allDepts = $allDepts->split(2);
 
       return view('/coordinator/workerEditItem')
         ->with('worker', $worker)
-        ->with('depts', $depts);
+        ->with('allDepts', $allDepts);
 
 
 
