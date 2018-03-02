@@ -36,6 +36,8 @@ Route::get('/coordinator/payments/pay/selected', 'CoordinatorController@showPayS
 Route::get('/coordinator/payments/pay/selected/unsigned', 'CoordinatorController@showPaySelectedUnsigned');
 Route::get('/coordinator/payments/pay/selected/unsigned/sign', 'CoordinatorController@paySelectedUnsignedSign');
 Route::get('/coordinator/payments/pay/selected/unsigned/remind', 'CoordinatorController@paySelectedUnsignedRemind');
+Route::get('/coordinator/payments/payscale', 'CoordinatorController@showPayscale');
+Route::post('/coordinator/payments/payscale', 'CoordinatorController@setPayscale');
 
 Route::get('/coordinator/timecards/import', 'CoordinatorController@timecardsImport');
 Route::get('/coordinator/timecards/create', 'CoordinatorController@showTimecardsCreate');
@@ -45,5 +47,5 @@ Route::get('/coordinator/timecards/unsigned', 'CoordinatorController@showTimecar
 Route::get('/coordinator/timecards/submitted', 'CoordinatorController@showTimecardsSubmitted');
 
 Route::get('/coordinator/departments', 'CoordinatorController@showDepartments');
-Route::get('/coordiantor/departments/add', 'CoordinatorController@showDepartmentsAdd');
+Route::get('/coordinator/departments/add', 'CoordinatorController@showDepartmentsAdd');
 Route::post('/coordinator/departments/add', 'CoordinatorController@departmentsAdd');

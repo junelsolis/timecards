@@ -3,61 +3,68 @@
   <head>
     <title>Coordinator | Timecards</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css')}}">
-    <link href="/css/pages.css" rel='stylesheet' />
-    <link href="https://fonts.googleapis.com/css?family=Raleway:200" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ asset('semantic/dist/semantic.min.css')}}">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+      integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+      crossorigin="anonymous"></script>
+    <script src="{{ asset('semantic/dist/semantic.min.js')}}"></script>
   </head>
-  @include('/coordinator/navbar')
   <body>
-    <div class="container-fluid">
-
-      @if (session('error'))
-      <div class="alert alert-warning" role="alert">
-        {{ session('error') }}
-      </div>
-      @endif
-      @if (session('msg'))
-      <div class="alert alert-warning" role="alert">
-        {{ session('msg') }}
-      </div>
-      @endif
-      <br />
-      <div class="card" style="background-color: whitesmoke;">
-        <div class="card-body"  style="text-align: center;">
-          <h4><strong>Departments</strong></h4><br />
-          <a href="/coordinator/departments/add" class="btn btn-outline-primary">+ Add Department +</a>
-        </div>
-      </div>
-      <div class="row">
-        @foreach ($departments as $item)
-        <div class="col-sm-6 col-md-4 col-lg-3">
-          <div class="card" style="margin-top: 5%; background-color: whitesmoke;">
-            <div class="card-body">
-              <h5 class="card-title"><strong>{{ $item->name }}</strong></h5>
-              <p class="card-text" style="min-height: 50px;">
-
-              </p>
-              <div class="btn-group" role="group">
-                <a href="/coordinator/supervisor/edit/item?id=<?php echo $item->id; ?>" class="btn btn-primary">Edit</a>
-                <a href="#" class="btn btn-outline-warning">Delete</a>
-              </div>
+    @include('/coordinator/navbar')
+    <div class="pusher" style="margin: 2%;">
+      <div class="ui grid">
+        <div class="ten wide column">
+          <h1 class="header">Departments</h1>
+          <div class="text">
+            Each supervisor and worker belongs to at least one department.<br />
+            Use the cards below to view and edit information for each department.
+          </div><br />
+          <a class="ui primary button" href="/coordinator/departments/add">Add Department</a>
+          @if (session('msg'))
+          <div class="ui yellow message">
+            <i class="close icon"></i>
+            <div class="header">
+              {{ session('msg') }}
             </div>
           </div>
-        </div>
-        @endforeach
+          @endif
+          <br /><br />
+          <div class="ui divider"></div>
 
+
+          @if (isset($departments))
+          <div class="ui four stackable cards">
+            @foreach ($departments as $item)
+            <div class="ui card">
+              <div class="center aligned image">
+                <i class="sitemap icon"></i>
+              </div>
+              <div class="content">
+                <div class="header">
+                  {{ $item->name }}
+                </div>
+                <div class="meta">
+                  {{ $item->totalTimecards }} Timecards<br />
+                  {{ $item->activeTimecards }} Active
+                </div>
+              </div>
+              <div class="extra content">
+                <i class="user outline icon"></i>{{ $item->supervisorCount }}<br />
+                <i class="user icon"></i>{{ $item->workerCount }}
+              </div>
+            </div>
+            @endforeach
+          </div>
+          @endif
+
+        </div>
       </div>
     </div>
-
-    @include('/coordinator/footer')
-
-
-
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+    <script>
+      $('#toggle').click(function(){
+        $('.ui.sidebar').sidebar('toggle');
+      });
+    </script>
   </body>
 </html>

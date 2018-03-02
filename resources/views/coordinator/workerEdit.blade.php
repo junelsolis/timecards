@@ -3,56 +3,96 @@
   <head>
     <title>Coordinator | Timecards</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css')}}">
-    <link href="/css/pages.css" rel='stylesheet' />
-    <link href="https://fonts.googleapis.com/css?family=Raleway:200" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ asset('semantic/dist/semantic.min.css')}}">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+      integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+      crossorigin="anonymous"></script>
+    <script src="{{ asset('semantic/dist/semantic.min.js')}}"></script>
   </head>
-  @include('/coordinator/navbar')
   <body>
-    <div class="container-fluid">
-      <br />
-      @if (session('error'))
-      <div class="alert alert-warning" role="alert">
-        {{ session('error') }}
-      </div>
-      @endif
-      @if (session('msg'))
-      <div class="alert alert-warning" role="alert">
-        {{ session('msg') }}
-      </div>
-      @endif
-
-      <div class="row">
-        @foreach ($workers as $item)
-        <div class="col-sm-6 col-md-4 col-lg-3">
-          <div class="card" style="margin-top: 5%; background-color: whitesmoke;">
-            <div class="card-body">
-              <h5 class="card-title"><strong>{{ $item->fullname }}</strong></h5>
-              <p class="card-text" style="min-height: 50px;">
-                @foreach ($item->departments as $department)
-                {{ $department }}<br />
-                @endforeach
-              </p>
-              <div class="btn-group" role="group">
-                <a href="/coordinator/worker/edit/item?id=<?php echo $item->id; ?>" class="btn btn-primary">Edit Worker</a>
-                <a href="#" class="btn btn-outline-warning">Delete</a>
+    @include('/coordinator/navbar')
+    <div class="pusher" style="margin: 2%">
+      <div class="ui grid">
+        <div class="ten wide column">
+          <h1 class="header">Workers</h1>
+          <div class="text">
+            This page shows all workers. Click on the card links to modify or delete a worker.
+          </div>
+          @if (session('msg'))
+          <div class="ui yellow message">
+            <i class="close icon"></i>
+            <div class="header">
+              {{ session('msg') }}
+            </div>
+          </div>
+          @endif
+          <div class="ui segment center aligned">
+            <div class="ui three statistics">
+              <div class="ui statistic">
+                <div class="value">
+                  {{ $totalWorkers}}
+                </div>
+                <div class="label">
+                  Workers
+                </div>
+              </div>
+              <div class="ui statistic">
+                <div class="value">
+                  {{ $totalDepartments }}
+                </div>
+                <div class="label">
+                  Departments
+                </div>
+              </div>
+              <div class="ui statistic">
+                <div class="value">
+                  {{ $totalTimecards }}
+                </div>
+                <div class="label">
+                  Timecards
+                </div>
               </div>
             </div>
           </div>
+          <div class="ui three stackable cards">
+            @foreach ($workers as $item)
+            <div class="card">
+              <div class="content">
+                <div class="header">
+                  {{ $item->fullname }}
+                </div>
+                <div class="meta">
+                  <div class="text">
+                    @foreach ($item->departments as $i)
+                    {{ $i }}<br />
+                    @endforeach
+                  </div>
+                </div>
+                <div class="description">
+                  <i class="address card icon"></i>
+                  {{ $item->totalTimecards }}&nbsp;Timecards<br />
+                  <i class="address card outline icon"></i>
+                  {{ $item->activeTimecards }}&nbsp;Active
+                </div>
+              </div>
+              <div class="extra content">
+                <div class="ui buttons">
+                  <a class="compact ui button blue">View</a>
+                  <a class="compact ui basic button green" href="/coordinator/worker/edit/item?id={{ $item->id }}">Modify</a>
+                  <a class="compact ui basic button yellow">Delete</a>
+                </div>
+              </div>
+            </div>
+            @endforeach
+          </div>
         </div>
-        @endforeach
       </div>
     </div>
-
-    @include('/coordinator/footer')
-
-
-
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+    <script>
+      $('#toggle').click(function(){
+        $('.ui.sidebar').sidebar('toggle');
+      });
+    </script>
   </body>
 </html>

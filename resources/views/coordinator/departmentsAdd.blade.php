@@ -3,65 +3,69 @@
   <head>
     <title>Coordinator | Timecards</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css')}}">
-    <link href="/css/pages.css" rel='stylesheet' />
-    <link href="https://fonts.googleapis.com/css?family=Raleway:200" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ asset('semantic/dist/semantic.min.css')}}">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+      integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+      crossorigin="anonymous"></script>
+    <script src="{{ asset('semantic/dist/semantic.min.js')}}"></script>
   </head>
-  @include('/coordinator/navbar')
+  </head>
   <body>
-    <div class="container">
-      @if (session('error'))
-      <div class="alert alert-warning" role="alert">
-        {{ session('error') }}
+    <div class="ui">
+      @include('/coordinator/navbar')
+      <div class="ui grid" style="margin: 1%;">
+          <div class="eight wide column">
+            <div class="ui segment">
+              <h1 class="header">Create Department</h1>
+              <form class="ui form" action="/coordinator/departments/add" method="post">
+              {{ csrf_field() }}
+                <h4 class="ui dividing header">Information</h4>
+                <div class="field">
+                  <label>Name</label>
+                  <input type="text" name="name" placeholder="Name of department (max 40 characters)" required />
+                </div>
+                <h4 class="ui dividing header">Additional Information</h4>
+                <div class="grouped fields">
+                  <label>Select supervisors for this department (optional)</label>
+                  @foreach ($supervisors as $item)
+                  <div class="field">
+                    <div class="ui checkbox">
+                      <input type="checkbox" name="supervisors[]" value="{{ $item->id }}" />
+                      <label>{{ $item->fullname }}</label>
+                    </div>
+                  </div>
+                  @endforeach
+                </div>
+                <br />
+                <div class="ui buttons">
+                  <button class="ui primary blue button" type="submit">Create</button>
+                  <a class="ui basic grey button" href="/coordinator">Cancel</a>
+                </div>
+              </form>
+              @if(session('error'))
+              <div class="ui yellow message">
+                <i class="close icon"></i>
+                <div class="header">
+                  Error
+                </div>
+                <?php echo session('error');?>
+              </div>
+              @endif
+            </div>
+          </div>
       </div>
-      @endif
-      @if ($errors->any())
-        @foreach ($errors->all() as $error)
-        <div class="alert alert-warning" role="alert">
-          {{ $error }}
-        </div>
-        @endforeach
-      @endif
-      <h3><strong>Add Department</strong></h3>
-      Enter period details below
-      <hr />
-      <form action="/coordinator/payment-periods/add" method="post">
-        {{ csrf_field() }}
-        <div class="row">
-          <div class="col-sm-12 col-md-6">
-            <div class="form-group">
-              <label for="startDate">Start Date</label>
-              <input type="date" class="form-control" id="startDate" name="startDate" required style="font-family: 'Helvetica', sans-serif;">
-              <small id="startDate" class="form-text text-muted">Select a Sunday</small>
-            </div>
-          </div>
-          <div class="col-sm-12 col-md-6">
-            <div class="form-group">
-              <label for="end">End Date</label>
-              <input type="date" class="form-control" id="endDate" name="endDate" required style="font-family: 'Helvetica', sans-serif;">
-              <small id="endDate" class="form-text text-muted">Select a Saturday</small>
-            </div>
-          </div>
-          <div class="col-sm-12">
-            <div class="btn-group">
-              <button type="submit" class="btn btn-primary">Create</button>
-              <a href="/coordinator/payment-periods" class="btn btn-outline-secondary">Cancel</a>
-            </div>
-          </div>
-        </div>
-
-      </form>
-
     </div>
-    @include('/coordinator/footer')
-
-
-
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+    <script>$('.ui.sidebar')
+  .sidebar('show');
+    </script>
+    <script>$('.message .close')
+      .on('click', function() {
+        $(this)
+          .closest('.message')
+          .transition('fade')
+        ;
+      });
+    </script>
   </body>
 </html>

@@ -3,79 +3,34 @@
   <head>
     <title>Coordinator | Timecards</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css')}}">
-    <link href="/css/pages.css" rel='stylesheet' />
-    <link href="https://fonts.googleapis.com/css?family=Raleway:200" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ asset('semantic/dist/semantic.min.css')}}">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+      integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+      crossorigin="anonymous"></script>
+    <script src="{{ asset('semantic/dist/semantic.min.js')}}"></script>
   </head>
-  @include('/coordinator/navbar')
   <body>
-    <div class="container-fluid">
-      <br />
-      @if (session('error'))
-      <div class="alert alert-warning" role="alert">
-        {{ session('error') }}
-      </div>
-      @endif
-      @if (session('msg'))
-      <div class="alert alert-warning" role="alert">
-        {{ session('msg') }}
-      </div>
-      @endif
+    @include('/coordinator/navbar')
+    <div class="pusher" style="margin: 2%;">
+      <div class="ui grid">
+        <div class="ten wide column">
 
-      <div class="row">
-        <div class="col-sm-12">
-          <div class="card" style="background-color: lemonchiffon;">
-            <div class="card-body text-center">
-              <h4><strong>Next Payment</strong></h4><br />
-              <h4 style="line-height: 0px; font-family: sans-serif;">{{ $countdown }} s</h4>
-
+            <h1 class="header">Header</h1>
+            <div class="text">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur auctor, tellus eget imperdiet sodales, eros nisi blandit leo, condimentum commodo neque ligula vitae metus. Vivamus et eros sit amet erat faucibus dapibus ut sed nulla. Quisque erat mauris, consequat ac velit nec, aliquam dictum metus. Nulla facilisi. Sed ullamcorper odio a egestas viverra. Maecenas imperdiet dapibus augue, finibus bibendum augue. Vivamus molestie semper imperdiet. Nunc ac nisi sed massa auctor lacinia.
             </div>
-          </div>
-        </div>
-        <div class="col-sm-4 col-md-2" style="padding-top: 1%;">
-          <div class="card" style="background-color: whitesmoke;">
-            <div class='card-body text-center'>
-              <p>Active</p>
-              <h2 style="font-family: sans-serif; color: royalblue;"><strong>{{ $countActiveTimecards  }}</strong></h2>
+            <h2 class="header">subheader</h2>
+            <div class="text">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur auctor, tellus eget imperdiet sodales, eros nisi blandit leo, condimentum commodo neque ligula vitae metus. Vivamus et eros sit amet erat faucibus dapibus ut sed nulla. Quisque erat mauris, consequat ac velit nec, aliquam dictum metus. Nulla facilisi. Sed ullamcorper odio a egestas viverra. Maecenas imperdiet dapibus augue, finibus bibendum augue. Vivamus molestie semper imperdiet. Nunc ac nisi sed massa auctor lacinia.
             </div>
-          </div>
-        </div>
-        <div class="col-sm-4 col-md-2" style="padding-top: 1%;">
-          <div class="card" style="background-color: whitesmoke;">
-            <div class='card-body text-center'>
-              <p>Unsigned</p>
-              <h2 style="font-family: sans-serif; color: orange;"><strong>{{ $countUnsignedTimecards }}</strong></h2>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-4 col-md-2" style="padding-top: 1%;">
-          <div class="card" style="background-color: whitesmoke;">
-            <div class='card-body text-center'>
-              <p>Signed</p>
-              <h2 style="font-family: sans-serif; color: green;"><strong>{{ $countSubmittedTimecards }}</strong></h2>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-12 col-md-6" style="padding-top: 1%;">
-          <div class="card" style="background-color: whitesmoke;">
-            <div class='card-body text-center'>
-              <p>Active Workers</p>
-              <h2 style="font-family: sans-serif;"><strong>{{ $countWorkers }}</strong></h2>
-            </div>
-          </div>
         </div>
       </div>
     </div>
-    @include('/coordinator/footer')
-
-
-
-
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="{{ asset('js/jquery-3.2.1.slim.min.js') }}"></script>
-    <script src="{{ asset('js/popper.min.js') }}"></script>
-    <script src="{{ asset('js/bootstrap.min.js')}}"></script>
+    <script>
+      $('#toggle').click(function(){
+        $('.ui.sidebar').sidebar('toggle');
+      });
+    </script>
   </body>
 </html>

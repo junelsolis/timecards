@@ -33,22 +33,23 @@ class LoginController extends Controller
       }
 
       // if there are no cookies, go to login screen.
-      return view('main');
+      return view('login');
 
     }
 
     public function login(Request $request) {
       // validate form data
       $request->validate([
-        'username' => 'string|required',
+        'email' => 'string|required',
         'password' => 'string|required'
       ]);
 
       $role = $request['role'];
-      $username = $request['username'] . "@maxwellsda.org";
+      $username = $request['email'] . "@maxwellsda.org";
       $password = sha1($request['password']);
 
       $users = NULL;
+
       // attempt to find user in DB
       switch ($role) {
         case 'worker':
@@ -61,15 +62,16 @@ class LoginController extends Controller
 
       // go back if user not found
       if ($users->isEmpty()) {
-        return back()->with('error', 'User not found.');
+        return back()->with('error', 'Invalid credentials');
       }
 
       $user = $users[0];
 
       // check password correct
       if ($password !== $user->password) {
-        return back()->with('error', 'Invalid password. Please try again.');
+        return back()->with('error', 'Invalid credentials');
       }
+
       // redirect to appropriate route
       switch ($role) {
         case 'worker':
