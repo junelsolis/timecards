@@ -11,19 +11,26 @@
     <script src="{{ asset('semantic/dist/semantic.min.js')}}"></script>
   </head>
   <body>
-    <div class="ui">
-        @include('/coordinator/navbar')
-      <div class="grid" style="margin: 1%;">
-        <div class="sixteen wide column fluid">
-          <h1>header</h1>
-          <p>
-            content goes here1
-          </p>
+    @include('/coordinator/navbar')
+    <div class="pusher" style="margin: 2%;">
+      <div class="ui grid">
+        <div class="ten wide column">
+
+            <h1 class="header">Header</h1>
+            <div class="text">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur auctor, tellus eget imperdiet sodales, eros nisi blandit leo, condimentum commodo neque ligula vitae metus. Vivamus et eros sit amet erat faucibus dapibus ut sed nulla. Quisque erat mauris, consequat ac velit nec, aliquam dictum metus. Nulla facilisi. Sed ullamcorper odio a egestas viverra. Maecenas imperdiet dapibus augue, finibus bibendum augue. Vivamus molestie semper imperdiet. Nunc ac nisi sed massa auctor lacinia.
+            </div>
+            <h2 class="header">subheader</h2>
+            <div class="text">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur auctor, tellus eget imperdiet sodales, eros nisi blandit leo, condimentum commodo neque ligula vitae metus. Vivamus et eros sit amet erat faucibus dapibus ut sed nulla. Quisque erat mauris, consequat ac velit nec, aliquam dictum metus. Nulla facilisi. Sed ullamcorper odio a egestas viverra. Maecenas imperdiet dapibus augue, finibus bibendum augue. Vivamus molestie semper imperdiet. Nunc ac nisi sed massa auctor lacinia.
+            </div>
         </div>
       </div>
-
-    <script>$('.ui.sidebar')
-  .sidebar('show');
+    </div>
+    <script>
+      $('#toggle').click(function(){
+        $('.ui.sidebar').sidebar('toggle');
+      });
     </script>
   </body>
 </html>

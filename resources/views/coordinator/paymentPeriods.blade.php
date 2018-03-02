@@ -11,60 +11,65 @@
     <script src="{{ asset('semantic/dist/semantic.min.js')}}"></script>
   </head>
   <body>
-    <div class="ui">
-      @include('/coordinator/navbar')
-      <div class="ui grid" style="margin: 1%;">
-          <div class="twelve wide column">
-            <div class="ui segment center aligned">
-              <h1 class="header">Payment Periods</h1>
-              <a class="ui primary button" href="/coordinator/payment-periods/add">Add Period</a>
+    @include('/coordinator/navbar')
+    <div class="pusher" style="margin: 2%;">
+      <div class="ui grid">
+        <div class="ten wide column">
+          <h1 class="header">Payment Periods</h1>
+          <div class="text">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur auctor, tellus eget imperdiet sodales, eros nisi blandit leo, condimentum commodo neque ligula vitae metus. Vivamus et eros sit amet erat faucibus dapibus ut sed nulla. Quisque erat mauris, consequat ac velit nec, aliquam dictum metus.
+          </div>
+          <br />
+          <a class="ui primary button" href="/coordinator/payment-periods/add">Add Period</a>
+          <div class="ui divider">
+
+          </div>
+          <br />
+          @if (session('msg'))
+          <div class="ui yellow message">
+            <i class="close icon"></i>
+            <div class="header">
+              Success.
             </div>
-            <div class="ui segment">
-              @if (session('msg'))
-              <div class="ui yellow message">
-                <i class="close icon"></i>
+            {{ session('msg') }}
+          </div>
+          @endif
+          @if (isset($periods))
+          <div class="ui stackable cards">
+            @foreach ($periods as $item)
+            <div class="ui raised card">
+              <div class="content">
                 <div class="header">
-                  Success.
+                  {{ $item->range }}
                 </div>
-                {{ session('msg') }}
-              </div>
-              @endif
-              @if (isset($periods))
-              <div class="ui stackable cards">
-                @foreach ($periods as $item)
-                <div class="ui raised card">
-                  <div class="content">
-                    <div class="header">
-                      {{ $item->range }}
-                    </div>
-                    <div class="description">
-                      Timecards <strong>{{ $item->associated }}</strong><br />
-                      Payment <strong>KSh {{ $item->payment }}</strong><br /><br />
-                    </div>
-                    <div class="extra content">
-                      <div class="ui two buttons">
-                        <div class="ui basic blue button">View</div>
-                        <div class="ui basic grey button">Print Report</div>
-                      </div>
-                    </div>
+                <div class="description">
+                  Timecards <strong>{{ $item->associated }}</strong><br />
+                  Payment <strong>KSh {{ $item->payment }}</strong><br /><br />
+                </div>
+                <div class="extra content">
+                  <div class="ui two buttons">
+                    <div class="ui basic blue button">View</div>
+                    <div class="ui basic grey button">Print Report</div>
                   </div>
                 </div>
-                @endforeach
               </div>
-              @endif
             </div>
+            @endforeach
+          </div>
+          @endif
+        </div>
+      </div>
+    </div>
+    <div class="ui">
+      <div class="ui grid" style="margin: 1%;">
+          <div class="twelve wide column">
+
           </div>
       </div>
     </div>
-    <script>$('.ui.sidebar')
-      .sidebar('show');
-    </script>
-    <script>$('.message .close')
-      .on('click', function() {
-        $(this)
-          .closest('.message')
-          .transition('fade')
-        ;
+    <script>
+      $('#toggle').click(function(){
+        $('.ui.sidebar').sidebar('toggle');
       });
     </script>
   </body>

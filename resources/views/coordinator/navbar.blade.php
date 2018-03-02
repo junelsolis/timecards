@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<div class="ui visible inverted thin sidebar vertical menu left">
+<div class="ui visible sidebar vertical thin left inverted menu">
   <div class="item">
     <div class="header">
       Junel Solis
@@ -60,6 +60,5 @@
       <em>Created by Junel R.S. Solis&nbsp;|&nbsp;MAA</em>
     </p>
   </div>
-
 </div>
 </html>
