@@ -30,11 +30,25 @@
               </div>
               @endif
             </div>
-            <div class="ui segment center aligned">
+            <div class="ui two cards">
+              <div class="ui card">
+                <div class="content">
 
+                </div>
+                <div class="meta">
+
+                </div>
+                <div class="description">
+
+                </div>
+                <div class="extra content">
+                  
+                </div>
+              </div>
             </div>
+
             <div class="ui segment">
-              
+
             </div>
           </div>
       </div>
