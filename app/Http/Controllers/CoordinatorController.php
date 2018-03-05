@@ -1076,27 +1076,28 @@ class CoordinatorController extends Controller
 
       // get all timecards matching the start and end dates
       $timecards = DB::table('timecards')
-        ->select('id', 'worker_id', 'dept_id', 'hours', 'grade', 'signed')
         ->where('startDate', $startDate)
         ->where('endDate', $endDate)
         ->get();
 
+      $workers = DB::table('workers')->get();
+      $departments = DB::table('departments')->get();
 
       // additional data
       foreach ($timecards as $item) {
-        $firstname = DB::table('workers')->where('id', $item->worker_id)->pluck('firstname')->first();
-        $lastname = DB::table('workers')->where('id', $item->worker_id)->pluck('lastname')->first();
-        $department = DB::table('departments')->where('id', $item->dept_id)->pluck('name')->first();
 
-        $item->firstname = $firstname;
-        $item->lastname = $lastname;
-        $item->department = $department;
+        $worker = $workers->where('id', $item->worker_id)->first();
+        $department = $departments->where('id', $item->dept_id)->first();
+
+        $item->firstname = $worker->firstname;
+        $item->lastname = $worker->lastname;
+        $item->department = $department->name;
 
         // total tardies
-        $item->tardies = $this->countTimecardTardies($item->id);
+        $item->tardies = $this->countTimecardTardies($item);
 
         // total absences
-        $item->absences = $this->countTimecardAbsences($item->id);
+        $item->absences = $this->countTimecardAbsences($item);
 
       }
 
@@ -1168,24 +1169,61 @@ class CoordinatorController extends Controller
 
       // get all timecards unpaid but signed
       $timecards = DB::table('timecards')
-        ->select('worker_id', 'dept_id', 'hours', 'pay', 'grade')
+        //->select('id', 'worker_id', 'dept_id', 'hours', 'pay', 'grade')
         ->where('signed', 1)
         ->where('paid', 0)
-        ->orderBy('startDate', 'desc')
         ->get();
 
-      foreach ($timecards as $i) {
-        $firstname = DB::table('workers')->where('id', $i->worker_id)->pluck('firstname')->first();
-        $lastname = DB::table('workers')->where('id', $i->worker_id)->pluck('lastname')->first();
-        $department = DB::table('departments')->where('id', $i->dept_id)->pluck('name')->first();
+      $departments = DB::table('departments')->get();
+      $workers = DB::table('workers')->get();
 
-        $i->firstname = $firstname;
-        $i->lastname = $lastname;
-        $i->department = $department;
+      foreach ($timecards as $i) {
+
+        $worker = $workers->where('id', $i->worker_id)->first();
+
+        $department = $departments->where('id', $i->dept_id)->first();
+
+        $i->firstname = $worker->firstname;
+        $i->lastname = $worker->lastname;
+        $i->department = $department->name;
         $i->grade = strtoupper($i->grade);
+
+        $startDate = date('d M', strtotime($i->startDate));
+        $endDate = date('d M', strtotime($i->endDate));
+
+        $i->dateRange = $startDate . ' - ' . $endDate;
+
+        $i->tardies = $this->countTimecardTardies($i);
+        $i->absences = $this->countTimecardAbsences($i);
+
       }
 
-      return view('/coordinator/timecardsSubmitted')->with('timecards', $timecards);
+      $sorted = $timecards->sortBy('lastname');
+
+      // statistics
+      $totalTimecards = count($timecards);
+      $totalHours = number_format($timecards->sum('hours'));
+      $totalPay = number_format($timecards->sum('pay'));
+
+      return view('/coordinator/timecardsSubmitted')
+        ->with('timecards', $sorted)
+        ->with('totalTimecards', $totalTimecards)
+        ->with('totalHours', $totalHours)
+        ->with('totalPay', $totalPay);
+    }
+    public function timecardsSubmittedReturn(Request $request) {
+      $this->checkLoggedIn();
+
+      $request->validate([
+        'id' => 'required|integer'
+      ]);
+
+      $id = $request['id'];
+
+      // unsign timecard with matching id
+      DB::table('timecards')->where('id', $id)->update(['signed' => 0]);
+
+      return redirect('/coordinator/timecards/submitted')->with('msg', 'Timecard returned to supervisor');
     }
 
 
@@ -1334,11 +1372,9 @@ class CoordinatorController extends Controller
       return $count;
     }
 
-    private function countTimecardTardies($id) {
+    private function countTimecardTardies($timecard) {
 
       // this function counts the total number of tardies in a single timecard
-      $timecard = DB::table('timecards')->where('id', $id)->first();
-
       $count = 0;
 
       if ($timecard->sunTardy == true) { $count++; }
@@ -1351,11 +1387,9 @@ class CoordinatorController extends Controller
 
       return $count;
     }
-    private function countTimecardAbsences($id) {
+    private function countTimecardAbsences($timecard) {
 
       // this function counts the total number of absences in a single timecard
-      $timecard = DB::table('timecards')->where('id', $id)->first();
-
       $count = 0;
 
       if ($timecard->sunAbsent == true) { $count++; }
