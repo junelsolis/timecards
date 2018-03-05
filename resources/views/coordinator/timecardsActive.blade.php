@@ -28,14 +28,59 @@
             </div>
             @endif
           <div class="ui divider"></div>
-          <br />
 
+          <div class="ui segment center aligned">
+            <div class="ui three statistics">
+              <div class="ui statistic">
+                <div class="value">
+                  {{ $totalTimecards }}
+                </div>
+                <div class='label'>
+                  Timecards
+                </div>
+              </div>
+              <div class="ui statistic">
+                <div class="value">
+                  {{ $signedTimecards }} / {{ $totalTimecards }}
+                </div>
+                <div class="label">
+                  Signed
+                </div>
+              </div>
+              <div class="ui statistic">
+                <div class="value">
+                  {{ $totalHours }}
+                </div>
+                <div class="labeL">
+                  Total Hours
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="ui divider">
+
+          </div>
+          <br />
           @if (isset($timecards))
           <div class="ui styled accordion">
             @foreach ($timecards as $item)
             <div class="title">
               <i class="dropdown icon"></i>
               {{ $item->firstname }} {{ $item->lastname }} | {{ $item->department }} | {{ $item->hours }}
+            </div>
+            <div class='content'>
+              <div class="ui two column grid">
+                <div class='column'>
+                  Hours: {{ $item->hours }}<br />
+                  Grade: <?php echo strtoupper($item->grade); ?>
+                </div>
+                <div class='column'>
+                  Tardies: {{ $item->tardies }}<br />
+                  Absences: {{ $item->absences }}
+                </div>
+              </div>
+
             </div>
             @endforeach
           </div>

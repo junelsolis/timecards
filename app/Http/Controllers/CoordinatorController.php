@@ -1076,12 +1076,12 @@ class CoordinatorController extends Controller
 
       // get all timecards matching the start and end dates
       $timecards = DB::table('timecards')
-        ->select('worker_id', 'dept_id', 'hours')
+        ->select('id', 'worker_id', 'dept_id', 'hours', 'grade', 'signed')
         ->where('startDate', $startDate)
         ->where('endDate', $endDate)
         ->get();
 
-      return $timecards;
+
       // additional data
       foreach ($timecards as $item) {
         $firstname = DB::table('workers')->where('id', $item->worker_id)->pluck('firstname')->first();
@@ -1092,11 +1092,32 @@ class CoordinatorController extends Controller
         $item->lastname = $lastname;
         $item->department = $department;
 
+        // total tardies
+        $item->tardies = $this->countTimecardTardies($item->id);
+
+        // total absences
+        $item->absences = $this->countTimecardAbsences($item->id);
+
       }
 
-      return $timecards;
+      // statistics
+      $totalTimecards = count($timecards);
+      $totalHours = $timecards->sum('hours');
+      $signedTimecards = 0;
 
-      return view('/coordinator/timecardsActive')->with('timecards', $timecards);
+      foreach($timecards as $item) {
+        if ($item->signed == 1) { $signedTimecards++; }
+      }
+
+      $sorted = $timecards->sortBy('lastname');
+
+      return view('/coordinator/timecardsActive')
+        ->with('timecards', $sorted)
+        ->with('totalTimecards', $totalTimecards)
+        ->with('totalHours', $totalHours)
+        ->with('signedTimecards', $signedTimecards);
+
+
     }
     public function showTimecardsUnsigned() {
       $this->checkLoggedIn();
@@ -1309,6 +1330,41 @@ class CoordinatorController extends Controller
       $this->checkLoggedIn();
 
       $count = DB::table('timecards')->where('signed', 1)->where('paid', 0)->count();
+
+      return $count;
+    }
+
+    private function countTimecardTardies($id) {
+
+      // this function counts the total number of tardies in a single timecard
+      $timecard = DB::table('timecards')->where('id', $id)->first();
+
+      $count = 0;
+
+      if ($timecard->sunTardy == true) { $count++; }
+      if ($timecard->monTardy == true) { $count++; }
+      if ($timecard->tueTardy == true) { $count++; }
+      if ($timecard->wedTardy == true) { $count++; }
+      if ($timecard->thuTardy == true) { $count++; }
+      if ($timecard->friTardy == true) { $count++; }
+      if ($timecard->satTardy == true) { $count++; }
+
+      return $count;
+    }
+    private function countTimecardAbsences($id) {
+
+      // this function counts the total number of absences in a single timecard
+      $timecard = DB::table('timecards')->where('id', $id)->first();
+
+      $count = 0;
+
+      if ($timecard->sunAbsent == true) { $count++; }
+      if ($timecard->monAbsent == true) { $count++; }
+      if ($timecard->tueAbsent == true) { $count++; }
+      if ($timecard->wedAbsent == true) { $count++; }
+      if ($timecard->thuAbsent == true) { $count++; }
+      if ($timecard->friAbsent == true) { $count++; }
+      if ($timecard->satAbsent == true) { $count++; }
 
       return $count;
     }
