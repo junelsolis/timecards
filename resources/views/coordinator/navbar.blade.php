@@ -18,7 +18,7 @@
     <div class="header">Timecards</div>
     <div class="menu">
       <a class="item" href="/coordinator/timecards/create">Create</a>
-      <a class="item">View Active</a>
+      <a class="item" href="/coordinator/timecards/active">View Active</a>
       <a class="item">View Unsigned</a>
       <a class="item">View Submitted</a>
       <a class="item" href="/coordinator/timecards/import">Import</a>

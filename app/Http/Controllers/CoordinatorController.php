@@ -1081,6 +1081,7 @@ class CoordinatorController extends Controller
         ->where('endDate', $endDate)
         ->get();
 
+      return $timecards;
       // additional data
       foreach ($timecards as $item) {
         $firstname = DB::table('workers')->where('id', $item->worker_id)->pluck('firstname')->first();
@@ -1093,6 +1094,7 @@ class CoordinatorController extends Controller
 
       }
 
+      return $timecards;
 
       return view('/coordinator/timecardsActive')->with('timecards', $timecards);
     }

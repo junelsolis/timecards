@@ -14,7 +14,7 @@
     @include('/coordinator/navbar')
     <div class="pusher" style="margin: 2%">
       <div class="ui grid">
-        <div class="ten wide column">
+        <div class="twelve wide column">
           <h1 class="header">Workers</h1>
           <div class="text">
             This page shows all workers. Click on the card links to modify or delete a worker.
@@ -78,9 +78,9 @@
               </div>
               <div class="extra content">
                 <div class="ui buttons">
-                  <a class="compact ui button blue">View</a>
-                  <a class="compact ui basic button green" href="/coordinator/worker/edit/item?id={{ $item->id }}">Modify</a>
-                  <a class="compact ui basic button yellow">Delete</a>
+                  <a class="compact mini ui button blue">View</a>
+                  <a class="compact mini ui basic button green" href="/coordinator/worker/edit/item?id={{ $item->id }}">Modify</a>
+                  <a class="compact mini ui basic button yellow">Delete</a>
                 </div>
               </div>
             </div>
