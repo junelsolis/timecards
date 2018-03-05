@@ -92,50 +92,44 @@ class CoordinatorController extends Controller
       // this function retrieves all supervisors
       // and returns it to a view.
 
-      // create empty collection
-      $items = collect();
+      $supervisors = DB::table('supervisors')
+        ->select('id','firstname','lastname','email')
+        ->orderBy('lastname')->get();
+      $departments = DB::table('departments')->get();
+      $supervDepts = DB::table('superv_depts')->get();
+      $unsignedTimecards = $this->getUnsignedTimecards();
 
-      // get all supervisors and add to collection
-      $supervisors = DB::table('supervisors')->orderBy('lastname')->get();
-      foreach($supervisors as $supervisor) {
-        $item = new stdClass();
+      foreach ($supervisors as $item) {
+        $item->fullname = $item->firstname . ' ' . $item->lastname;
 
-        $item->id = $supervisor->id;
-        $item->firstname = $supervisor->firstname;
-        $item->lastname = $supervisor->lastname;
-        $item->fullname = $supervisor->firstname . ' ' . $supervisor->lastname;
+        $item->departmentCount = $supervDepts->where('superv_id', $item->id)->count();
+        $item->countUnsignedTimecards = 0;
+        $departmentsId = $supervDepts->where('superv_id', $item->id)->pluck('dept_id');
 
-        $items->push($item);
-      }
 
-      // get dept id's for each superv_id
-      foreach($items as $item) {
-
-        $dept_ids = DB::table('superv_depts')->where('superv_id', $item->id)->pluck('dept_id');
-
-        $array = array();
-
-        foreach ($dept_ids as $id) {
-          $deptNames = DB::table('departments')->where('id', $id)->pluck('name');
-
-          foreach($deptNames as $i) {
-            $array[] = $i;
-          }
-
+        foreach ($departmentsId as $id) {
+          $item->countUnsignedTimecards = $unsignedTimecards->where('dept_id', $id)->count();
         }
 
-        $item->departments = $array;
-
-
       }
 
+      // statistics
+      $totalSupervisors = $supervisors->count();
+      $totalDepartments = $departments->count();
 
-      return view('/coordinator/supervisorEdit')->with('supervisors', $items);
-
+      return view('/coordinator/supervisorEdit')
+        ->with('supervisors', $supervisors)
+        ->with('totalSupervisors', $totalSupervisors)
+        ->with('totalDepartments', $totalDepartments);
 
     }
     public function showSupervisorEditItem(Request $request) {
       $this->checkLoggedIn();
+
+      // validate
+      $request->validate([
+          'id' => 'required|integer'
+      ]);
 
       // get supervisor id
       $id = $request['id'];
@@ -143,22 +137,30 @@ class CoordinatorController extends Controller
       // retrieve object with id from database.
       $supervisor = DB::table('supervisors')->where('id', $id)->first();
 
-      // short email
-      $pieces = explode('@', $supervisor->email);
-      $short = $pieces[0];
-      $supervisor->short = $short;
+      $supervisor->fullname = $supervisor->firstname . ' ' . $supervisor->lastname;
 
-      // retrieve and add departments array to supervisor object
-      $dept_ids = DB::table('superv_depts')->where('superv_id', $supervisor->id)->pluck('dept_id');
-      $deptsArray = array();
-      foreach ($dept_ids as $id) {
-        $names = DB::table('departments')->where('id', $id)->orderBy('name')->pluck('name');
-        foreach($names as $i) {
-          $deptsArray[] = $i;
-        }
+      // get all department names supervisor belongs to
+      $ids = DB::table('superv_depts')->where('superv_id', $supervisor->id)->pluck('dept_id');
+      $names = array();
+
+      foreach ($ids as $item) {
+        $name = DB::table('departments')->where('id', $item)->first();
+        $names[] = $name->name;
       }
 
-      $supervisor->departments = $deptsArray;
+      // count supervisor's unsigned timecards
+      $unsigned = $this->getUnsignedTimecards();
+      $unsignedTimecards = 0;
+      foreach ($ids as $item) {
+        $count = $unsigned->where('dept_id', $item)->count();
+
+        $unsignedTimecards = $unsignedTimecards + $count;
+      }
+
+      $supervisor->unsignedTimecards = $unsignedTimecards;
+
+      $supervisor->departments = $names;
+      $supervisor->departmentIds = $ids->toArray();
 
       // get all possible departments and split into two
       $depts = DB::table('departments')->orderBy('name')->get();
@@ -166,7 +168,8 @@ class CoordinatorController extends Controller
 
       return view('/coordinator/supervisorEditItem')
         ->with('supervisor', $supervisor)
-        ->with('depts', $depts);
+        ->with('departments', $depts)
+        ->with('unsignedTimecards', $unsignedTimecards);
     }
     public function supervisorEditItem(Request $request) {
       $this->checkLoggedIn();
@@ -1123,44 +1126,9 @@ class CoordinatorController extends Controller
     public function showTimecardsUnsigned() {
       $this->checkLoggedIn();
 
-      // this next section establishes the saturday of last week
-      $startDate = '';
-      $endDate = '';
+      $timecards = $this->getUnsignedTimecards();
 
-      // get three-letter day of the week
-      $day = date('D', strtotime('now'));
-
-      switch ($day) {
-        case 'Sun':
-          $startDate = date('Y-m-d', strtotime('Sunday last week'));
-          $endDate = date('Y-m-d', strtotime('Saturday this week'));
-          break;
-        default:
-          $startDate = date('Y-m-d', strtotime('-2 weeks Sunday'));
-          $start = strtotime('-2 weeks Sunday');
-          $end = strtotime('+6 days', $start);
-          $endDate = date('Y-m-d', $end);
-          break;
-      }
-
-      // get all timecards matching date range
-      $timecards = DB::table('timecards')
-        ->select('worker_id', 'dept_id', 'hours')
-        ->where('startDate' , $startDate)
-        ->where('endDate', $endDate)
-        ->where('signed', 0)
-        ->get();
-
-      foreach ($timecards as $i) {
-        $firstname = DB::table('workers')->where('id', $i->worker_id)->pluck('firstname')->first();
-        $lastname = DB::table('workers')->where('id', $i->worker_id)->pluck('lastname')->first();
-        $department = DB::table('departments')->where('id', $i->dept_id)->pluck('name')->first();
-
-        $i->firstname = $firstname;
-        $i->lastname = $lastname;
-        $i->department = $department;
-      }
-
+      return $timecards;
 
       return view('/coordinator/timecardsUnsigned')->with('timecards', $timecards);
     }
@@ -1336,8 +1304,9 @@ class CoordinatorController extends Controller
     private function countUnsignedTimecards() {
       $this->checkLoggedIn();
 
+      $this->checkLoggedIn();
+
       // this next section establishes the saturday of last week
-      $startDate = '';
       $endDate = '';
 
       // get three-letter day of the week
@@ -1345,24 +1314,29 @@ class CoordinatorController extends Controller
 
       switch ($day) {
         case 'Sun':
-          $startDate = date('Y-m-d', strtotime('Sunday last week'));
-          $endDate = date('Y-m-d', strtotime('Saturday this week'));
+          $endDate = strtotime('Saturday this week');
           break;
         default:
-          $startDate = date('Y-m-d', strtotime('-2 weeks Sunday'));
           $start = strtotime('-2 weeks Sunday');
-          $end = strtotime('+6 days', $start);
-          $endDate = date('Y-m-d', $end);
+          $endDate = strtotime('+6 days', $start);
           break;
       }
 
-      // count timecards matching time constraints
-      $count = DB::table('timecards')
-        ->where('startDate', $startDate)
-        ->where('endDate', $endDate)
-        ->count();
 
-      return $count;
+      $timecards = DB::table('timecards')
+        ->where('signed', 0)
+        ->get();
+
+      foreach ($timecards as $key => $item ) {
+        $end = strtotime($item->endDate);
+
+        if ($end <= $endDate) {}
+        else {
+          $timecards->forget($key);
+        }
+      }
+
+      return $timecards->count();
     }
     private function countSubmittedTimecards() {
       $this->checkLoggedIn();
@@ -1370,6 +1344,41 @@ class CoordinatorController extends Controller
       $count = DB::table('timecards')->where('signed', 1)->where('paid', 0)->count();
 
       return $count;
+    }
+    private function getUnsignedTimecards() {
+      $this->checkLoggedIn();
+
+      // this next section establishes the saturday of last week
+      $endDate = '';
+
+      // get three-letter day of the week
+      $day = date('D', strtotime('now'));
+
+      switch ($day) {
+        case 'Sun':
+          $endDate = strtotime('Saturday this week');
+          break;
+        default:
+          $start = strtotime('-2 weeks Sunday');
+          $endDate = strtotime('+6 days', $start);
+          break;
+      }
+
+
+      $timecards = DB::table('timecards')
+        ->where('signed', 0)
+        ->get();
+
+      foreach ($timecards as $key => $item ) {
+        $end = strtotime($item->endDate);
+
+        if ($end <= $endDate) {}
+        else {
+          $timecards->forget($key);
+        }
+      }
+
+      return $timecards;
     }
 
     private function countTimecardTardies($timecard) {
