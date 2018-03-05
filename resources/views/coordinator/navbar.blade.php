@@ -44,7 +44,7 @@
   <div class="item">
     <div class="header">Supervisors</div>
     <div class="menu">
-      <a class="item">Add</a>
+      <a class="item" href="/coordinator/supervisor/add">Add</a>
       <a class="item" href="/coordinator/supervisor/edit">View</a>
       <a class="item" href="/coordinator/departments">Departments</a>
     </div>

@@ -46,7 +46,7 @@ class CoordinatorController extends Controller
         'username' => 'email|required',
         'firstname' => 'string|required',
         'lastname' => 'string|required',
-        'departments' => 'array|required'
+        'departments' => 'array'
       ]);
 
       // assign and sanitize data
@@ -60,13 +60,14 @@ class CoordinatorController extends Controller
 
       // check that user does not already exist
       $exists = DB::table('supervisors')->where('email', $email)->get();
+
       if ($exists->isEmpty()) {}
       else {
         return back()->with('error', 'User already exists in the database.');
       }
 
       // create the user in db
-      DB::table('supervisors')->insert([
+      $id = DB::table('supervisors')->insertGetId([
         'firstname' => $firstname,
         'lastname' => $lastname,
         'email' => $email,
@@ -74,18 +75,17 @@ class CoordinatorController extends Controller
       ]);
 
       // create department entries for supervisor
-      $id = DB::table('supervisors')->where('email', $email)->first();
-
       foreach ($departments as $i) {
         DB::table('superv_depts')->insert([
-          'superv_id' => $id->id,
+          'superv_id' => $id,
           'dept_id' => $i
         ]);
       }
 
 
-      return redirect('/coordinator')
-        ->with('msg', 'Supervisor has been successfully added and an e-mail was sent.');
+      return redirect('/coordinator/supervisor/add')
+        ->with('msg', 'Supervisor successfully added.');
+
     }
     public function showSupervisorEdit() {
       $this->checkLoggedIn();
