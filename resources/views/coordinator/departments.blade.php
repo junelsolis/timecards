@@ -31,8 +31,6 @@
           @endif
           <br /><br />
           <div class="ui divider"></div>
-
-
           @if (isset($departments))
           <div class="ui four stackable cards">
             @foreach ($departments as $item)
@@ -57,7 +55,7 @@
             @endforeach
           </div>
           @endif
-
+          <div class="ui divider"></div>
         </div>
       </div>
     </div>

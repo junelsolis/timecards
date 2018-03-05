@@ -45,6 +45,7 @@ Route::post('/coordinator/timecards/create', 'CoordinatorController@timecardsCre
 Route::get('/coordinator/timecards/active', 'CoordinatorController@showTimecardsActive');
 Route::get('/coordinator/timecards/unsigned', 'CoordinatorController@showTimecardsUnsigned');
 Route::get('/coordinator/timecards/submitted', 'CoordinatorController@showTimecardsSubmitted');
+Route::get('/coordinator/timecards/submitted/return', 'CoordinatorController@timecardsSubmittedReturn');
 
 Route::get('/coordinator/departments', 'CoordinatorController@showDepartments');
 Route::get('/coordinator/departments/add', 'CoordinatorController@showDepartmentsAdd');

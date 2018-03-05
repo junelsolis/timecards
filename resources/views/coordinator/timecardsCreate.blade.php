@@ -46,7 +46,11 @@
             <?php echo session('error');?>
           </div>
           @endif
+          <div class="ui divider">
+
+          </div>
         </div>
+
       </div>
     </div>
     <script>

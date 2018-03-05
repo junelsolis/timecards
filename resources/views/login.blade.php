@@ -60,7 +60,7 @@
         </div>
         <br />
         <div class="field">
-          <div class="ui right icon labeled input">
+          <div class="ui right labeled input">
             <input type="text" name="email" placeholder="Email address" required>
             <div class="ui label">
               <div class="text">@maxwellsda.org</div>
