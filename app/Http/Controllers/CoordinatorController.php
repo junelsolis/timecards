@@ -201,6 +201,12 @@ class CoordinatorController extends Controller
       $this->checkLoggedIn();
 
       $departments = DB::table('departments')->orderBy('name')->get();
+      $supervDepts = DB::table('superv_depts')->get();
+      $workerDepts = DB::table('worker_depts')->get();
+      // all active timecards
+      $activeTimecards = $this->getActiveTimecards();
+
+
 
       // append additional information
       foreach ($departments as $item) {
@@ -209,48 +215,44 @@ class CoordinatorController extends Controller
           $total = DB::table('timecards')->where('dept_id', $item->id)->count();
           $item->totalTimecards = $total;
 
-        // count active timecards for this departments
-          $startDate = '';
-          $endDate = '';
-
-          // get three-letter day of the week
-          $day = date('D', strtotime('now'));
-
-          if ($day === 'Sun') {
-
-            $startDate = date('Y-m-d', strtotime('now'));
-            $endDate = date('Y-m-d', strtotime('+6 days'));
+        // count active timecards for this department
+          $count = 0;
+          foreach ($activeTimecards as $card) {
+            if ($item->id == $card->dept_id) {
+              $count++;
+            }
           }
-
-          switch ($day) {
-            case 'Sun':
-              $startDate = date('Y-m-d', strtotime('now'));
-              $endDate = date('Y-m-d', strtotime('+6 days'));
-              break;
-            default:
-              $startDate = date('Y-m-d', strtotime('Sunday last week'));
-              $sun = strtotime('Sunday last week');
-              $end = strtotime('+6 days', $sun);
-              $endDate = date('Y-m-d', $end);
-              break;
-          }
-
-          // count timecards matching date constraints
-          $count = DB::table('timecards')
-            ->where('startDate', $startDate)
-            ->where('endDate', $endDate)
-            ->count();
 
           $item->activeTimecards = $count;
 
         // count number of supervisors for this department
-          $count = DB::table('superv_depts')->where('dept_id', $item->id)->count();
-          if ($count == 1) { $count = "1 supervisor"; } else { $count = $count . " supervisors"; }
+          $count = 0;
+          foreach ($supervDepts as $i) {
+            if ($i->dept_id == $item->id) {
+              $count++;
+            }
+          }
+
+          if ($count != 1) {
+            $count = $count . ' Supervisors';
+          } else {
+            $count = $count .' Supervisor';
+          }
           $item->supervisorCount = $count;
 
         // count number of workers for this department
-          $count = DB::table('worker_depts')->where('dept_id', $item->id)->count();
-          if ($count == 1) { $count = "1 worker"; } else { $count = $count . " workers"; }
+          $count = 0;
+          foreach ($workerDepts as $i) {
+            if ($i->dept_id == $item->id) {
+              $count++;
+            }
+          }
+
+          if ($count != 1) {
+            $count = $count . ' Workers';
+          } else {
+            $count = $count . ' Worker';
+          }
           $item->workerCount = $count;
 
       }
@@ -1360,6 +1362,43 @@ class CoordinatorController extends Controller
       $count = DB::table('timecards')->where('signed', 1)->where('paid', 0)->count();
 
       return $count;
+    }
+    private function getActiveTimecards() {
+      $this->checkLoggedIn();
+
+      // empty strings to hold start and end dates
+      $startDate = '';
+      $endDate = '';
+
+      // get three-letter day of the week
+      $day = date('D', strtotime('now'));
+
+      if ($day === 'Sun') {
+
+        $startDate = date('Y-m-d', strtotime('now'));
+        $endDate = date('Y-m-d', strtotime('+6 days'));
+      }
+
+      switch ($day) {
+        case 'Sun':
+          $startDate = date('Y-m-d', strtotime('now'));
+          $endDate = date('Y-m-d', strtotime('+6 days'));
+          break;
+        default:
+          $startDate = date('Y-m-d', strtotime('Sunday last week'));
+          $sun = strtotime('Sunday last week');
+          $end = strtotime('+6 days', $sun);
+          $endDate = date('Y-m-d', $end);
+          break;
+      }
+
+      // count timecards matching date constraints
+      $timecards = DB::table('timecards')
+        ->where('startDate', $startDate)
+        ->where('endDate', $endDate)
+        ->get();
+
+      return $timecards;
     }
     private function getUnsignedTimecards() {
       $this->checkLoggedIn();
