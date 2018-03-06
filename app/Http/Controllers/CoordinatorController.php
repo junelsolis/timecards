@@ -1110,9 +1110,43 @@ class CoordinatorController extends Controller
 
       $timecards = $this->getUnsignedTimecards();
 
-      return $timecards;
+      $workers = DB::table('workers')->get();
+      $departments = DB::table('departments')->get();
 
-      return view('/coordinator/timecardsUnsigned')->with('timecards', $timecards);
+      $count = $this->countUnsignedTimecards();
+      $total = 0;
+
+      foreach ($timecards as $item) {
+
+        // get worker for this timecard
+        $worker = $workers->where('id', $item->worker_id)->first();
+
+        $firstname = $worker->firstname;
+        $lastname = $worker->lastname;
+
+        // store fullname
+        $item->fullname = $firstname . ' ' . $lastname;
+
+        // store department name
+        $department = $departments->where('id', $item->dept_id)->first();
+        $item->department = $department->name;
+
+        // add to total hours
+        $total = $total + $item->hours;
+
+        // count tardies
+        $item->tardies = $this->countTimecardTardies($item);
+
+        // count absences
+        $item->absences = $this->countTimecardAbsences($item);
+      }
+
+      $sorted = $timecards->sortBy('startDate');
+
+      return view('/coordinator/timecardsUnsigned')
+        ->with('timecards', $sorted)
+        ->with('count', $count)
+        ->with('total', $total);
     }
     public function showTimecardsSubmitted() {
       $this->checkLoggedIn();
