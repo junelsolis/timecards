@@ -11,8 +11,11 @@
 |
 */
 
-Route::get('/', 'LoginController@main');
-Route::post('/login', 'LoginController@login');
+Route::get('/', 'LoginController@showLogin');
+Route::get('/login/coordinator', 'LoginController@showLoginCoordinator');
+Route::post('/login/coordinator', 'LoginController@loginCoordinator');
+Route::get('/login/supervisor', 'LoginController@showLoginSupervisor');
+Route::post('/login/supervisor', 'LoginController@loginSupervisor');
 
 // Coordinator Routes
 Route::get('/coordinator', 'CoordinatorController@main');

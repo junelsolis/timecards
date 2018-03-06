@@ -8,7 +8,7 @@ use Cookie;
 
 class LoginController extends Controller
 {
-    public function main() {
+    public function showLogin() {
 
       // check if there are cookies set.
       $userId = Cookie::get('userId');
@@ -36,61 +36,44 @@ class LoginController extends Controller
       return view('login');
 
     }
-
-    public function login(Request $request) {
+    public function showLoginCoordinator() {
+      return view('loginCoordinator');
+    }
+    public function loginCoordinator(Request $request) {
       // validate form data
       $request->validate([
         'email' => 'string|required',
         'password' => 'string|required'
       ]);
 
-      $role = $request['role'];
       $username = $request['email'] . "@maxwellsda.org";
       $password = sha1($request['password']);
 
-      $users = NULL;
-
       // attempt to find user in DB
-      switch ($role) {
-        case 'worker':
-          $users = DB::table('workers')->where('email', $username)->get();
-        case 'supervisor':
-          $users = DB::table('supervisors')->where('email', $username)->get();
-        case 'coordinator':
-          $users = DB::table('coordinators')->where('email', $username)->get();
-      }
+      $users = DB::table('coordinators')->where('email', $username)->get();
 
       // go back if user not found
       if ($users->isEmpty()) {
         return back()->with('error', 'Invalid credentials');
       }
 
-      $user = $users[0];
+      $user = $users->first();
 
       // check password correct
       if ($password !== $user->password) {
         return back()->with('error', 'Invalid credentials');
       }
 
-      // redirect to appropriate route
-      switch ($role) {
-        case 'worker':
-          session(['userId' => $user->id]);
-          session(['role' => $role]);
-          return redirect()->route('worker');
+      // set session variables
+      session(['userId' => $user->id]);
+      session(['role' => 'coordinator']);
 
-        case 'supervisor':
-          session(['userId' => $user->id]);
-          session(['role' => $role]);
-          return redirect()->route('supervisor');
-
-        case 'coordinator':
-          session(['userId' => $user->id]);
-          session(['role' => $role]);
-          return redirect('coordinator');
-
-      }
-
+      // redirect to coordinator page
+      return redirect('/coordinator');
 
     }
+    public function showLoginSupervisor() {
+      return view('loginSupervisor');
+    }
+    public function loginsupervisor(Request $request) {}
 }
