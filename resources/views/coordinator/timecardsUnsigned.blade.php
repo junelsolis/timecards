@@ -30,7 +30,7 @@
           <div class="ui divider"></div>
 
           <div class="ui segment center aligned">
-            <div class="ui three statistics">
+            <div class="ui two statistics">
               <div class="ui statistic">
                 <div class="value">
                   {{ $count }}
