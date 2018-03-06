@@ -30,8 +30,8 @@
           <div class="ui divider">
           </div>
           <div class="ui two column stackable grid">
-            <div class="ui column">
-              <div class="ui card">
+            <div class="ui six wide column">
+              <div class="ui fluid card">
                 <div class="image">
                   <img src="/images/matthew.png" />
                 </div>
@@ -52,7 +52,7 @@
             </div>
             <div class="ui column">
               <div class="ui segment">
-                <form class="ui form" action="/coordinator/supervisor/edit/item" method="post">
+                <form class="ui fluid form" action="/coordinator/supervisor/edit/item" method="post">
                 {{ csrf_field() }}
                   <input type='hidden' name="id" value="{{ $supervisor->id }}" />
                   <h4 class="ui dividing header">Select Departments</h4>

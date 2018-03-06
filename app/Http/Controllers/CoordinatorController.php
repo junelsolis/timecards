@@ -174,45 +174,27 @@ class CoordinatorController extends Controller
     public function supervisorEditItem(Request $request) {
       $this->checkLoggedIn();
 
-      // append domain to username entry
-      $request['username'] = $request['username'] . '@maxwellsda.org';
-
       // validate request
       $request->validate([
-        'id' => 'required',
-        'username' => 'email|required',
-        'firstname' => 'alpha|required',
-        'lastname' => 'alpha|required',
-        'departments' => 'array|required'
+        'id' => 'required|integer',
+        'departments' => 'array|nullable'
       ]);
 
-      // create local vars from request
+
       $id = $request['id'];
-      $username = strtolower($request['username']);
-      $firstname = ucwords(strtolower($request['firstname']));
-      $lastname = ucwords(strtolower($request['lastname']));
       $departments = $request['departments'];
 
-      // update supervisor entry in db
-      DB::table('supervisors')->where('id', $id)->update([
-        'email' => $username,
-        'firstname' => $firstname,
-        'lastname' => $lastname,
-      ]);
-
-      // remove entries from supervisor depts table
-      // then insert new department entries
+      // delete all department entries for this supervisor id
       DB::table('superv_depts')->where('superv_id', $id)->delete();
-      foreach($departments as $i) {
-        DB::table('superv_depts')->insert([
-          'superv_id' => $id,
-          'dept_id' => $i
-        ]);
+
+      // make new department entries for supervisor
+      foreach ($departments as $item) {
+        DB::table('superv_depts')->insert(
+            ['superv_id' => $id, 'dept_id' => $item]
+          );
       }
 
-      return redirect('/coordinator/supervisor/edit')->with('msg', 'Supervisor details updated.');
-
-
+      return redirect('/coordinator/supervisor/edit/item?id='.$id)->with('msg', 'Supervisor updated.');
     }
 
     public function showDepartments() {
