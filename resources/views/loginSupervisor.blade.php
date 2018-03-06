@@ -34,7 +34,7 @@
         Supervisor Login
       </div>
     </h2><br /><br />
-    <form class="ui large form" action="/login" method="post">
+    <form class="ui large form" action="/login/supervisor" method="post">
       {{ csrf_field() }}
         <div class="field">
           <div class="ui right labeled input">
