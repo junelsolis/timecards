@@ -383,92 +383,55 @@ class CoordinatorController extends Controller
     public function showWorkerEdit() {
       $this->checkLoggedIn();
 
-      // create empty collection
-      $items = collect();
-
-      // get all workers and add to collection
+      $timecards = DB::table('timecards')->get();
+      $activeTimecards = $this->getActiveTimecards();
       $workers = DB::table('workers')->orderBy('lastname')->get();
-      foreach($workers as $worker) {
-        $item = new stdClass();
+      $workerDepts = DB::table('worker_depts')->get();
+      $departments = DB::table('departments')->get();
 
-        $item->id = $worker->id;
-        $item->firstname = $worker->firstname;
-        $item->lastname = $worker->lastname;
-        $item->fullname = $worker->firstname . ' ' . $worker->lastname;
+      foreach($workers as $worker) {
+
+        $worker->fullname = $worker->firstname . ' ' . $worker->lastname;
 
         // get total timecards for each worker
-        $totalTimecards = DB::table('timecards')->where('worker_id', $worker->id)->count();
-        $item->totalTimecards = $totalTimecards;
+        $totalTimecards = $timecards->where('worker_id', $worker->id)->count();
+        $worker->totalTimecards = $totalTimecards;
 
         // get total active timecards for each worker
-          // empty strings to hold start and end dates
-          $startDate = '';
-          $endDate = '';
-
-          // get three-letter day of the week
-          $day = date('D', strtotime('now'));
-
-          if ($day === 'Sun') {
-
-            $startDate = date('Y-m-d', strtotime('now'));
-            $endDate = date('Y-m-d', strtotime('+6 days'));
-          }
-
-          switch ($day) {
-            case 'Sun':
-              $startDate = date('Y-m-d', strtotime('now'));
-              $endDate = date('Y-m-d', strtotime('+6 days'));
-              break;
-            default:
-              $startDate = date('Y-m-d', strtotime('Sunday last week'));
-              $sun = strtotime('Sunday last week');
-              $end = strtotime('+6 days', $sun);
-              $endDate = date('Y-m-d', $end);
-              break;
-          }
-
-          // count timecards matching date constraints
-          $count = DB::table('timecards')
-            ->where('worker_id', $worker->id)
-            ->where('startDate', $startDate)
-            ->where('endDate', $endDate)
-            ->count();
-
-          $item->activeTimecards = $count;
-
-        $items->push($item);
-      }
-
-      // get all dept id's for each worker_id
-      foreach ($items as $i) {
-        $dept_ids = DB::table('worker_depts')->where('worker_id', $i->id)->pluck('dept_id');
-
-        $array = array();
-
-        foreach ($dept_ids as $id) {
-          $deptNames = DB::table('departments')->where('id', $id)->orderBy('name')->pluck('name');
-
-          foreach ($deptNames as $name) {
-            $array[] = $name;
+        $count = 0;
+        foreach ($activeTimecards as $card) {
+          if ($card->worker_id == $worker->id) {
+            $count++;
           }
         }
 
-        $i->departments = $array;
+        $worker->activeTimecards = $count;
+
+        // get all department names for each worker
+        $deptIds = $workerDepts->where('worker_id', $worker->id);
+        $departmentNames = collect();
+        foreach ($deptIds as $id) {
+          $name = $departments->where('id', $id->dept_id)->first();
+          $departmentNames->push($name->name);
+        }
+
+        $worker->departments = $departmentNames;
       }
 
+
       // count all workers
-      $totalWorkers = DB::table('workers')->count();
+      $totalWorkers = $workers->count();
 
       // count all departments
-      $totalDepartments = DB::table('departments')->count();
+      $totalDepartments = $departments->count();
 
       // count all timecards
-      $totalTimecards = DB::table('timecards')->count();
+      $totalTimecards = $timecards->count();
       $totalTimecards = number_format($totalTimecards);
 
       // return view
       return view('/coordinator/workerEdit')
-        ->with('workers', $items)
+        ->with('workers', $workers)
         ->with('totalWorkers', $totalWorkers)
         ->with('totalDepartments', $totalDepartments)
         ->with('totalTimecards', $totalTimecards);
