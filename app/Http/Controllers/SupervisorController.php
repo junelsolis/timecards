@@ -10,11 +10,18 @@ class SupervisorController extends Controller
       $check = $this->checkLoggedIn();
       if ($check == true) {} else { return redirect('/'); }
 
+      // get active timecards
       $activeTimecards = $this->getSupervisorActiveTimecards();
       $sorted = $activeTimecards->sortBy('lastname');
 
+      // get workers
+      $workers = $this->getWorkers();
+      $sortedWorkers = $workers->sortBy('lastname');
+
+      // additional info for workers
       return view('/supervisor/main')
-        ->with('activeTimecards', $sorted);
+        ->with('activeTimecards', $sorted)
+        ->with('workers', $sortedWorkers);
 
     }
 
@@ -883,5 +890,75 @@ class SupervisorController extends Controller
     }
     private function payTimecard($id) {
       DB::table('timecards')->where('id', $id)->update(['paid' => true]);
+    }
+    private function getDepartments() {
+      // this function returns all the departments the supervisor is assigned to
+      $id = session('userId');
+
+      $deptIds = DB::table('superv_depts')->where('superv_id', $id)->get();
+      $departments = DB::table('departments')->get();
+
+      $items = collect();
+
+      foreach ($deptIds as $id) {
+        $department = $departments->where('id', $id->dept_id)->first();
+        $items->push($department);
+      }
+
+      return $items;
+
+    }
+    private function getWorkers() {
+      // this function returns all the workers assigned to the supervisor
+      // plus additional info
+      $departments = $this->getDepartments();
+      $workerDepts = DB::table('worker_depts')->get();
+      $workersTable = DB::table('workers')->select('id', 'firstname', 'lastname', 'email')->get();
+      $timecardsTable = DB::table('timecards')->get();
+
+      $items = collect();
+
+      foreach ($departments as $department) {
+        // collect worker ids that match the department id
+        $workerIds = $workerDepts->where('dept_id', $department->id);
+
+
+        // collect workers that match the worker id
+        foreach ($workerIds as $item) {
+          $worker = $workersTable->where('id', $item->worker_id)->first();
+
+          // additional info
+
+            // fullname
+            $worker->fullname = $worker->firstname . ' ' . $worker->lastname;
+
+          // push to items collection
+          $items->push($worker);
+        }
+      }
+
+      // count total timecards for each worker for the departments of this supervisor
+      foreach ($items as $worker) {
+
+        $totalTimecards = 0;
+        $workerDepartments = collect();
+
+        foreach($departments as $dept) {
+          $count = $timecardsTable->where('worker_id', $worker->id)
+            ->where('dept_id', $dept->id)->count();
+
+          $totalTimecards = $totalTimecards + $count;
+
+          $workerDepartments->push($dept->name);
+        }
+
+        $worker->totalTimecards = $totalTimecards;
+        $worker->departmentNames = $workerDepartments;
+      }
+
+
+      return $items;
+
+
     }
 }

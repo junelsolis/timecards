@@ -141,9 +141,39 @@
           </div>
           @endif
 
-          <h3 class="ui dividing header">Statistics</h3>
-          <h3 class="ui dividing header">Unsigned Timecards</h3>
+    
+          <div class="ui segment">
+            stats go in here
+          </div>
+          <h2 class="ui dividing header">Unsigned Timecards</h2>
+          @if ($workers)
           <h3 class="ui dividing header">Workers</h3>
+          <div class="ui three cards">
+            @foreach ($workers as $worker)
+            <div class="ui card">
+              <div class="image">
+                <img src="{{ asset('/images/user.png')}}" />
+              </div>
+              <div class="content">
+                <div class="header">
+                  <a>{{ $worker->fullname }}</a>
+                </div>
+                <div class="meta">
+                  @foreach($worker->departmentNames as $name)
+                    {{ $name }}<br />
+                  @endforeach
+                </div>
+              </div>
+              <div class="extra content">
+                <a>
+                  <i class="address card icon"></i>
+                  {{ $worker->totalTimecards }}&nbsp;Timecards
+                </a>
+              </div>
+            </div>
+            @endforeach
+          </div>
+          @endif
         </div>
       </div>
     </div>
