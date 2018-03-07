@@ -15,8 +15,34 @@
     <div class="pusher" style="margin: 2%;">
       <div class="ui grid">
         <div class="ten wide column">
+          @if (session('msg'))
+          <div class="ui yellow message">
+            <i class="close icon"></i>
+            <div class="header">
+              {{ session('msg') }}
+            </div>
+          </div>
+          @endif
+          @if (session('error'))
+          <div class="ui yellow message">
+            <i class="close icon"></i>
+            <div class="header">
+              {{ session('error') }}
+            </div>
+          </div>
+          @endif
+          @if (!empty($errors->all()))
+          <div class="ui red message">
+            <i class="close icon"></i>
+            <div class="header">
+              @foreach ($errors->all() as $message)
+              {{ $message }}
+              @endforeach
+            </div>
+          </div>
+          @endif
           <h1 class="ui dividing header">
-            Active Timecards
+            Timecards this week
           </h1>
           @if (isset($activeTimecards))
           <?php
@@ -26,6 +52,7 @@
             $out1 = "{$day}TimeOut1";
             $in2 = "{$day}TimeIn2";
             $out2 = "{$day}TimeOut2";
+
 
           ?>
           <div class="ui styled fluid accordion">
@@ -42,10 +69,8 @@
                     Grade {{ strtoupper($item->grade) }}<br />
                     Hours {{ $item->hours }}<br />
                     Estimate Ksh{{ $item->estimate }}<br /><br /><br />
-                    <div class="ui fluid buttons">
-                      <a class="ui mini green button">Edit</a>
-                      <a class="ui mini orange button">Sign</a>
-                    </div>
+                    <a class="mini ui green basic button">Edit</a>
+                    <a class="mini ui orange button">Sign</a>
                   </div>
                   <div class="twelve wide column">
                     <form class="ui fluid form" action="/supervisor/timecards/quick-edit" method="post">
@@ -77,7 +102,36 @@
                           <input type="time" name="out2" value="<?php echo $item->{$out2}; ?>"/>
                         </div>
                       </div>
-                      <button class="ui right floated blue button" type="submit">Save</button>
+                      <div class='label'>
+                        Select One
+                      </div>
+                      <div class="two fluid fields">
+                        <div class="field">
+                          <div class="ui checkbox">
+                            <input type="checkbox" name="tardy"
+                              <?php
+                                if ($item->{$day .'Tardy'}) {
+                                  echo "checked";
+                                }
+                              ?>
+                             />
+                            <label>Tardy</label>
+                          </div><br />
+                          <div class="ui checkbox">
+                            <input type="checkbox" name="absent"
+                              <?php
+                                if ($item->{$day . 'Absent'}) {
+                                  echo "checked";
+                                }
+                              ?>
+                            />
+                            <label>Absent</label>
+                          </div>
+                        </div>
+                        <div class="field">
+                          <button class="ui right floated blue button" type="submit">Save</button>
+                        </div>
+                      </div>
                     </form>
                   </div>
                 </div>
@@ -100,6 +154,14 @@
 
       $('.ui.accordion')
   .accordion();
+
+      $('.message .close')
+    .on('click', function() {
+    $(this)
+      .closest('.message')
+      .transition('fade')
+    ;
+    });
     </script>
   </body>
 </html>

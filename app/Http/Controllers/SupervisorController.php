@@ -26,7 +26,9 @@ class SupervisorController extends Controller
         'in1' => 'nullable|string',
         'out1' => 'nullable|string',
         'in2' => 'nullable|string',
-        'out2' => 'nullable|string'
+        'out2' => 'nullable|string',
+        'tardy' => 'nullable|string|max:2',
+        'absent' => 'nullable|string|max:2'
       ]);
 
       // additional validation
@@ -39,22 +41,60 @@ class SupervisorController extends Controller
           return back()->with('error', 'No time in entered.');
         }
 
+      // do not accept if both absent and tardy are checked
+      if (isset($request['tardy']) && isset($request['absent'])) {
+        return back()->with('error', 'Cannot be both tardy and absent. Select only one.');
+      }
+
+      // do not accept if time out is before or same as time in
+      if (!empty($request['out1'])) {
+        if (strtotime($request['in1']) >= strtotime($request['out1'])) {
+          return back()->with('error', '1 Time Out cannot be same as or before Time In.');
+        }
+      }
+
+      if (!empty($request['out2'])) {
+        if (strtotime($request['in2']) >= strtotime($request['out2'])) {
+          return back()->with('error', '2 Time Out cannot be same as or before Time In.');
+        }
+      }
+
+
+
+
       $id = $request['id'];
       $day = $request['day'];
       $in1 = $request['in1'];
       $in2 = $request['in2'];
       $out1 = $request['out1'];
       $out2 = $request['out2'];
+      $tardy = $request['tardy'];
+      $absent = $request['absent'];
 
-
+      if ($tardy == 'on') { $tardy = true; } else { $tardy = false; }
+      if ($absent == 'on') { $absent = true; } else { $absent = false; }
 
       // retrieve timecard with matching id
-      $timecard = DB::table('timecards')->where('id', $id)->first();
+      // $timecard = DB::table('timecards')->where('id', $id)->first();
+      //
+      // $timecard->{$day . 'TimeIn1'} = $in1;
+      // $timecard->{$day . 'TimeOut1'} = $out1;
+      // $timecard->{$day . 'TimeIn2'} = $in2;
+      // $timecard->{$day . 'TimeOut2'} = $out2;
+      // $timecard->{$day . 'Tardy'} = $tardy;
+      // $timecard->{$day . 'Absent'} = $absent;
 
-      $timecard->{$day . 'TimeIn1'} = $in1;
-      $timecard->{$day . 'TimeOut1'} = $out1;
-      $timecard->{$day . 'TimeIn2'} = $in2;
-      $timecard->{$day . 'TimeOut2'} = $out2;
+      DB::table('timecards')->where('id',$id)
+        ->update(
+          [
+            $day . 'TimeIn1' => $in1,
+            $day . 'TimeOut1' => $out1,
+            $day . 'TimeIn2' => $in2,
+            $day . 'TimeOut2' => $out2,
+            $day . 'Tardy' => $tardy,
+            $day . 'Absent' => $absent,
+          ]
+        );
 
     }
 
