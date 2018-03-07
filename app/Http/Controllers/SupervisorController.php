@@ -607,8 +607,74 @@ class SupervisorController extends Controller
       return redirect('/supervisor/timecards/edit?id='.$id)->with('msg', 'Timecard successfully updated.');
 
     }
-    public function showTimecardSign() {}
-    public function timecardSign(Request $request) {}
+    public function showTimecardSign(Request $request) {
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
+
+      $request->validate([
+        'id' => 'required|integer'
+      ]);
+
+      // retrieve timecard
+      $id = $request['id'];
+      $timecard = DB::table('timecards')->where('id', $id)->first();
+
+      // add department name
+      $department = DB::table('departments')->where('id', $timecard->dept_id)->first();
+      $timecard->department = $department->name;
+
+      // add worker fullname
+      $worker = DB::table('workers')->where('id', $timecard->worker_id)->first();
+      $timecard->fullname = $worker->firstname . ' ' . $worker->lastname;
+
+      // add date range
+      $start = date('d M', strtotime($timecard->startDate));
+      $end = date('d M', strtotime($timecard->endDate));
+
+      $timecard->dateRange = $start . ' - ' . $end;
+
+      // add number of tardies
+      $count = 0;
+
+      if ($timecard->sunTardy == true) { $count++; }
+      if ($timecard->monTardy == true) { $count++; }
+      if ($timecard->tueTardy == true) { $count++; }
+      if ($timecard->wedTardy == true) { $count++; }
+      if ($timecard->thuTardy == true) { $count++; }
+      if ($timecard->friTardy == true) { $count++; }
+      if ($timecard->satTardy == true) { $count++; }
+
+      $timecard->tardies = $count;
+
+      // add number of absences
+      $count = 0;
+
+      if ($timecard->sunAbsent == true) { $count++; }
+      if ($timecard->monAbsent == true) { $count++; }
+      if ($timecard->tueAbsent == true) { $count++; }
+      if ($timecard->wedAbsent == true) { $count++; }
+      if ($timecard->thuAbsent == true) { $count++; }
+      if ($timecard->friAbsent == true) { $count++; }
+      if ($timecard->satAbsent == true) { $count++; }
+
+      $timecard->absences = $count;
+
+      return view('/supervisor/timecardSign')->with('timecard', $timecard);
+
+    }
+    public function timecardSign(Request $request) {
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
+
+      $request->validate(['id' => 'required|integer']);
+
+
+      // sign timecard
+      $id = $request['id'];
+      $this->signTimecard($id);
+
+      return redirect('/supervisor')->with('msg', 'Timecard successfully signed.');
+    }
 
     private function checkLoggedIn() {
       $role = session('role');
@@ -738,6 +804,7 @@ class SupervisorController extends Controller
       $timecards = DB::table('timecards')
         ->where('startDate', $startDate)
         ->where('endDate', $endDate)
+        ->where('signed', 0)
         ->get();
 
       $items = collect();
@@ -809,5 +876,12 @@ class SupervisorController extends Controller
       }
 
       return $timecards;
+    }
+
+    private function signTimecard($id) {
+      DB::table('timecards')->where('id', $id)->update(['signed' => true]);
+    }
+    private function payTimecard($id) {
+      DB::table('timecards')->where('id', $id)->update(['paid' => true]);
     }
 }
