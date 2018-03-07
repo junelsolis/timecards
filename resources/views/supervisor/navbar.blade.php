@@ -6,46 +6,38 @@
       {{ session('fullname') }}
     </div>
     <p class="grey" style="font-size: 0.9em;">
-      <em>Coordinator</em>
+      <em>Supervisor</em>
     </p>
   </div>
   <div class="item">
     <div class="header">
-      <a href="/coordinator">Dashboard</a>
+      <a href="/supervisor">Dashboard</a>
     </div>
   </div>
   <div class="item">
     <div class="header">Timecards</div>
     <div class="menu">
-      <a class="item" href="/coordinator/timecards/create">Create</a>
-      <a class="item" href="/coordinator/timecards/active">View Active</a>
-      <a class="item" href="/coordinator/timecards/unsigned">View Unsigned</a>
-      <a class="item" href="/coordinator/timecards/submitted">View Submitted</a>
-      <a class="item" href="/coordinator/timecards/import">Import</a>
+      <a class="item" href="">View Active</a>
+      <a class="item" href="">View Unsigned</a>
+      <a class="item" href="">View Submitted</a>
     </div>
   </div>
   <div class="item">
     <div class="header">Payments</div>
     <div class="menu">
-      <a class="item">Pay</a>
-      <a class="item">Generate Report</a>
-      <a class="item" href="/coordinator/payment-periods">Payment Periods</a>
-      <a class="item" href="/coordinator/payments/payscale">Set Payscale</a>
+      
     </div>
   </div>
   <div class="item">
     <div class="header">Workers</div>
     <div class="menu">
-      <a class="item" href="/coordinator/worker/add">Add</a>
       <a class="item" href="/coordinator/worker/edit">View</a>
       <a class="item">Attendance</a>
     </div>
   </div>
   <div class="item">
-    <div class="header">Supervisors</div>
+    <div class="header">Departments</div>
     <div class="menu">
-      <a class="item" href="/coordinator/supervisor/add">Add</a>
-      <a class="item" href="/coordinator/supervisor/edit">View</a>
       <a class="item" href="/coordinator/departments">Departments</a>
     </div>
   </div>
