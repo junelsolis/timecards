@@ -9,7 +9,9 @@ use stdClass;
 class CoordinatorController extends Controller
 {
     public function main() {
-      $this->checkLoggedIn();
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
+
 
       $countdown = $this->nextPaymentCountDown();
       $countWorkers = $this->countWorkers();
@@ -1179,11 +1181,9 @@ class CoordinatorController extends Controller
     private function checkLoggedIn() {
       // this function checks that the current user is a coordinator.
       // if not, redirect to login page.
-      $role = session()->get('role');
+      $role = session('role');
 
-      if ($role !== 'coordinator' || empty($role)) {
-        return redirect('/');
-      }
+      if ($role == 'coordinator') { return true;} else { return false; }
     }
     private function nextPaymentCountDown() {
       // get all payment periods

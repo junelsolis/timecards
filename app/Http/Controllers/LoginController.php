@@ -10,27 +10,6 @@ class LoginController extends Controller
 {
     public function showLogin() {
 
-      // check if there are cookies set.
-      $userId = Cookie::get('userId');
-      $role = Cookie::get('role');
-
-      // if there are cookies, use them to log in
-      if (isset($userId) && isset($role)) {
-
-        // set session data
-        session()->push('userId', $userId);
-        session()->push('role', $role);
-
-        // send to route according to role
-        switch ($role) {
-          case 'worker':
-            return redirect('/worker');
-          case 'supervisor':
-            return redirect('/supervisor');
-          case 'coordinator':
-            return redirect('/coordinator');
-        }
-      }
 
       // if there are no cookies, go to login screen.
       return view('login');

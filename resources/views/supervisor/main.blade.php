@@ -69,8 +69,8 @@
                     Grade {{ strtoupper($item->grade) }}<br />
                     Hours {{ $item->hours }}<br />
                     Estimate Ksh{{ $item->estimate }}<br /><br /><br />
-                    <a class="mini ui green basic button">Edit</a>
-                    <a class="mini ui orange button">Sign</a>
+                    <a class="mini ui green basic button" href="/supervisor/timecards/edit?id={{ $item->id }}">Edit</a>
+                    <a class="mini ui orange button" href="/supervisor/timecards/sign?id={{ $item->id }}">Sign</a>
                   </div>
                   <div class="twelve wide column">
                     <form class="ui fluid form" action="/supervisor/timecards/quick-edit" method="post">

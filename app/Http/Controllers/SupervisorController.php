@@ -7,7 +7,8 @@ use DB;
 class SupervisorController extends Controller
 {
     public function main() {
-      $this->checkLoggedIn();
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
 
       $activeTimecards = $this->getSupervisorActiveTimecards();
       $sorted = $activeTimecards->sortBy('lastname');
@@ -18,7 +19,8 @@ class SupervisorController extends Controller
     }
 
     public function timecardQuickEdit(Request $request) {
-      $this->checkLoggedIn();
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
 
       $request->validate([
         'id' => 'required|integer',
@@ -74,15 +76,6 @@ class SupervisorController extends Controller
       if ($tardy == 'on') { $tardy = true; } else { $tardy = false; }
       if ($absent == 'on') { $absent = true; } else { $absent = false; }
 
-      // retrieve timecard with matching id
-      // $timecard = DB::table('timecards')->where('id', $id)->first();
-      //
-      // $timecard->{$day . 'TimeIn1'} = $in1;
-      // $timecard->{$day . 'TimeOut1'} = $out1;
-      // $timecard->{$day . 'TimeIn2'} = $in2;
-      // $timecard->{$day . 'TimeOut2'} = $out2;
-      // $timecard->{$day . 'Tardy'} = $tardy;
-      // $timecard->{$day . 'Absent'} = $absent;
 
       DB::table('timecards')->where('id',$id)
         ->update(
@@ -97,19 +90,20 @@ class SupervisorController extends Controller
         );
 
     }
+    public function showTimecardEdit() {}
+    public function timecardEdit(Request $request) {}
+    public function showTimecardSign() {}
+    public function timecardSign(Request $request) {}
 
     private function checkLoggedIn() {
-      // this function checks that the current user is a coordinator.
-      // if not, redirect to login page.
-      $role = session()->get('role');
+      $role = session('role');
 
-      if ($role !== 'coordinator' || empty($role)) {
-        return redirect('/');
-      }
+      if ($role == 'supervisor') { return true;} else { return false; }
     }
 
     private function countActiveTimecards() {
-      $this->checkLoggedIn();
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
 
       // empty strings to hold start and end dates
       $startDate = '';
@@ -146,9 +140,8 @@ class SupervisorController extends Controller
       return $count;
     }
     private function countUnsignedTimecards() {
-      $this->checkLoggedIn();
-
-      $this->checkLoggedIn();
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
 
       // this next section establishes the saturday of last week
       $endDate = '';
@@ -183,14 +176,16 @@ class SupervisorController extends Controller
       return $timecards->count();
     }
     private function countSubmittedTimecards() {
-      $this->checkLoggedIn();
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
 
       $count = DB::table('timecards')->where('signed', 1)->where('paid', 0)->count();
 
       return $count;
     }
     private function getSupervisorActiveTimecards() {
-      $this->checkLoggedIn();
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
 
       // empty strings to hold start and end dates
       $startDate = '';
@@ -265,7 +260,8 @@ class SupervisorController extends Controller
       return $items;
     }
     private function getUnsignedTimecards() {
-      $this->checkLoggedIn();
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
 
       // this next section establishes the saturday of last week
       $endDate = '';

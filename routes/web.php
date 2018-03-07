@@ -58,3 +58,7 @@ Route::post('/coordinator/departments/add', 'CoordinatorController@departmentsAd
 Route::get('/supervisor', 'SupervisorController@main');
 
 Route::post('/supervisor/timecards/quick-edit', 'SupervisorController@timecardQuickEdit');
+Route::get('/supervisor/timecards/edit', 'SupervisorController@showTimecardEdit');
+Route::post('/supervisor/timecards/edit', 'SupervisorController@timecardEdit');
+Route::get('/supervisor/timecards/sign', 'SupervisorController@showTimecardSign');
+Route::post('/supervisor/timecards/sign', 'SupervisorController@timecardSign');
