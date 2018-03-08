@@ -546,6 +546,89 @@ class CoordinatorController extends Controller
 
       return view('/coordinator/paymentPeriodsAdd');
     }
+    public function showPaymentPeriodsReport(Request $request) {
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
+
+      $request->validate([
+        'id' => 'required|integer'
+      ]);
+
+      $id = $request['id'];
+
+      // get period from DB
+      $period = DB::table('payment_periods')->where('id', $id)->first();
+      // all timecards from DB;
+      $timecards = DB::table('timecards')->get();
+
+
+      // store all associated timecards
+      $timecards = $this->getPeriodTimecards($period, $timecards);
+
+      // total of all timecards
+      $period->totalTimecards = $timecards->count();
+
+      // total payment
+      $period->totalPayment = number_format($timecards->sum('pay'));
+      // add date range
+      $startDate = strtotime($period->startDate);
+      $endDate = strtotime($period->endDate);
+
+      $period->dateRange = date('d F', $startDate) . ' - ' . date('d F', $endDate);
+
+
+      // add all workers and their assoc relevant information
+      $workers = DB::table('workers')
+        ->orderBy('lastname')
+        ->select('id', 'firstname', 'lastname', 'email')
+        ->get();
+
+        $period->workers = $workers;
+
+        foreach ($period->workers as $worker) {
+          // append fullname
+          $worker->fullname = $worker->firstname . ' ' . $worker->lastname;
+
+          // append associated timecards
+          $cards = $timecards->where('worker_id', $worker->id);
+
+          // append total hours
+          $total = 0;
+          foreach ($cards as $timecard) {
+            $total += $timecard->hours;
+          }
+          $worker->totalHours = round($total,2);
+
+          // append total pay
+          $total = 0;
+          foreach ($cards as $timecard) {
+            $total += $timecard->pay;
+          }
+          $worker->totalPay = $total;
+
+          // append tithe
+          $total = 0;
+          foreach ($cards as $timecard) {
+            $tithe = $timecard->pay * 0.10;
+            $total += $tithe;
+          }
+          $worker->totalTithe = round($total);
+
+          $worker->netPay = ($worker->totalPay) - ($worker->totalTithe);
+        }
+
+        // calculate totalTithe
+        $totalTithe = 0;
+        foreach ($period->workers as $worker) {
+          $total = $worker->totalTithe;
+          $totalTithe += $total;
+        }
+        $period->totalTithe = number_format($totalTithe);
+
+      return view('/coordinator/paymentPeriodsReport')
+        ->with('item', $period)
+        ->with('workers', $workers);
+    }
     public function paymentPeriodsAdd(Request $request) {
       $check = $this->checkLoggedIn();
       if ($check == true) {} else { return redirect('/'); }
@@ -585,49 +668,41 @@ class CoordinatorController extends Controller
       $check = $this->checkLoggedIn();
       if ($check == true) {} else { return redirect('/'); }
 
-      // get payment periods
-      $periods = DB::table('payment_periods')->orderBy('startDate', 'desc')->get();
-
+      // get all payment periods
+      $periods = DB::table('payment_periods')->orderBy('endDate', 'desc')->get();
       // get all timecards
-      $all = DB::table('timecards')->select('startDate', 'endDate', 'pay', 'paid')->get();
+      $timecards = DB::table('timecards')->get();
 
+      foreach ($periods as $period) {
+        $cards = $this->getPeriodTimecards($period, $timecards);
 
-      foreach ($periods as $i) {
-        // form date range string
-        $start = date('d M', strtotime($i->startDate));
-        $end = date('d M', strtotime($i->endDate));
-        $range = $start . ' - ' . $end;
+        // total timecards
+        $period->totalTimecards = $cards->count();
+        // unsigned timecards
+        $period->unsignedTimecards = $cards->where('signed', 0)->where('paid', 0)->count();
+        // submitted timecards
+        $period->submittedTimecards = $cards->where('signed', 1)->where('paid', 0)->count();
+        // remaining timecards
+        $period->remainingTimecards = $cards->count() - $cards->where('signed', 0)->count();
 
-        // count associated timecards
-        $associated = 0;
-        $payment = 0;
-        $paid = true;
+        // total payment
+        $period->totalPayment = number_format($cards->sum('pay'));
 
-        foreach ($all as $timecard) {
-          $cardStart = strtotime($timecard->startDate);
-          $cardEnd = strtotime($timecard->endDate);
-          $periodStart = strtotime($i->startDate);
-          $periodEnd = strtotime($i->endDate);
+        // date range
+        $startDate = strtotime($period->startDate);
+        $endDate = strtotime($period->endDate);
 
-          if ($cardStart >= $periodStart && $cardEnd <= $periodEnd) {
-            $associated++;
-            $payment += $timecard->pay;
-
-            if ($timecard->paid == false) {
-              $paid = false;
-            }
-          }
-
-
-        }
-
-        $i->range = $range;
-        $i->associated = $associated;
-        $i->payment = number_format($payment);
-        $i->paid = $paid;
+        $period->dateRange = date('d M', $startDate) . ' - ' . date('d M', $endDate);
       }
 
-      return view('/coordinator/paymentsPay')->with('periods', $periods);
+      $unpaid = $periods->where('paid', 0);
+      $paid = $periods->where('paid', 1);
+
+
+      return view('/coordinator/paymentsPay')
+        ->with('unpaid', $unpaid)
+        ->with('paid', $paid);
+
     }
     public function showPaySelected(Request $request) {
       $check = $this->checkLoggedIn();
@@ -1477,5 +1552,22 @@ class CoordinatorController extends Controller
 
     }
 
+    private function getPeriodTimecards($period, $timecards) {
+      // this function takes a payment period and timecards and returns all the timecards within that period
 
+      $periodStart = strtotime($period->startDate);
+      $periodEnd = strtotime($period->endDate);
+
+      $cards = collect();
+      foreach ($timecards as $card) {
+        $cardStart = strtotime($card->startDate);
+        $cardEnd = strtotime($card->endDate);
+
+        if ($cardStart >= $periodStart && $cardEnd <= $periodEnd) {
+          $cards->push($card);
+        }
+      }
+
+      return $cards;
+    }
 }

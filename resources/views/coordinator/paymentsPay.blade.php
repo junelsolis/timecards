@@ -3,67 +3,113 @@
   <head>
     <title>Coordinator | Timecards</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css')}}">
-    <link href="/css/pages.css" rel='stylesheet' />
-    <link href="https://fonts.googleapis.com/css?family=Raleway:200" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ asset('semantic/dist/semantic.min.css')}}">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+      integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+      crossorigin="anonymous"></script>
+    <script src="{{ asset('semantic/dist/semantic.min.js')}}"></script>
   </head>
-  @include('/coordinator/navbar')
   <body>
-    <div class="container">
-      <br />
-      @if (session('error'))
-      <div class="alert alert-warning" role="alert">
-        {{ session('error') }}
-      </div>
-      @endif
-      @if (session('msg'))
-      <div class="alert alert-warning" role="alert">
-        {{ session('msg') }}
-      </div>
-      @endif
-      <div class="row">
-        <div class="col-sm-12 text-center">
-          <h3 style="text-center"><strong>Select Payment Period</strong></h3><br />
-        </div>
-      </div>
-      <div class="row">
-        @foreach ($periods as $item)
-        <div class="col-sm-6 col-md-4 col-lg-3">
-          <div class="card" style="background-color: white; margin-top: 3%;">
-            <div class="card-body">
-              <h5 class="card-title" style="font-family: sans-serif;"><strong>{{ $item->range }}</strong></h5>
-              <p class="card-text" style="font-family: sans-serif; font-weight: 100;">
-                Timecards <strong>{{ $item->associated }}</strong><br />
-                Payment <strong>Ksh&nbsp;{{ $item->payment }}</strong>
-              </p>
-              @if ($item->paid === true)
-              <div class="btn-group">
-                <a href="#" class="btn btn-primary">View</a>
-                <a href="#" class="btn btn-outline-warning">Print Report</a>
-              </div>
-              @endif
-              @if ($item->paid === false)
-              <a href="/coordinator/payments/pay/selected?<?php echo 'startDate=' . $item->startDate . '&endDate=' . $item->endDate; ?>" class="btn btn-outline-warning">Pay Timecards</a>
-              @endif
-
-            </div>
+    @include('/coordinator/navbar')
+    <div class="pusher" style="margin: 2%;">
+      <div class="ui grid">
+        <div class="ten wide column">
+          <h1 class="ui header">Payment Periods</h1>
+          <div class="ui divider">
           </div>
+          @if (session('msg'))
+          <div class="ui yellow message">
+            <i class="close icon"></i>
+            <div class="header">
+              Success.
+            </div>
+            {{ session('msg') }}
+          </div>
+          @endif
+          @if (isset($unpaid))
+          <h3 class="ui yellow header">Pending Payment</h3>
+          <div class="ui two stackable cards">
+            @foreach ($unpaid as $item)
+            <div class="ui raised card">
+              <div class="content">
+                <div class="ui blue header">
+                  {{ $item->dateRange }}
+                </div>
+                <div class='meta'>
+                  <strong>Payment</strong> KSh {{ $item->totalPayment }}
+                </div>
+                <div class="description">
+                  <div class="ui two column grid">
+                    <div class="column">
+                      <strong>{{ $item->totalTimecards}}</strong>&nbsp;Timecards<br />
+                      <strong>{{ $item->unsignedTimecards}}</strong>&nbsp;Unsigned<br />
+                      <strong>{{ $item->submittedTimecards}}</strong>&nbsp;Submitted
+                    </div>
+                    <div class="column middle aligned">
+                      <div class="ui yellow statistic">
+                        <div class="value">
+                          {{ $item->remainingTimecards }}
+                        </div>
+                        <div class="label">
+                          Remaining
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="extra content">
+                <a class="ui tiny blue button">Pay</a>
+                <a class="ui tiny basic yellow button">Details</a>
+              </div>
+            </div>
+            @endforeach
+          </div>
+          @endif
+          <br />
+          <div class="ui divider"></div>
+
+          <h3 class="ui header">Previous Periods</h3>
+          @if ($paid)
+            <div class="ui three stackable cards">
+            @foreach ($paid as $item)
+              <div class="ui card">
+                <div class="content">
+                  <div class="ui grey header">
+                    {{ $item->dateRange }}
+                  </div>
+                  <div class="meta">
+                    <strong>Payment</strong> KSh {{ $item->totalPayment }}
+                  </div>
+                  <div class="description">
+                    <strong>{{ $item->totalTimecards }}</strong>&nbsp;Timecards
+                  </div>
+                </div>
+                <div class="extra content">
+                  <a class="ui tiny blue basic button" href="/coordinator/payment-periods/report?id={{ $item->id }}"><i class="print icon"></i>Report</a>
+                </div>
+              </div>
+            @endforeach
+          </div>
+          <div class="ui divider">
+            
+          </div>
+          @endif
         </div>
-        @endforeach
-
       </div>
-
     </div>
-    @include('/coordinator/footer')
+    <div class="ui">
+      <div class="ui grid" style="margin: 1%;">
+          <div class="twelve wide column">
 
-
-
-
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="{{ asset('js/jquery-3.2.1.slim.min.js') }}"></script>
-    <script src="{{ asset('js/popper.min.js') }}"></script>
-    <script src="{{ asset('js/bootstrap.min.js')}}"></script>
+          </div>
+      </div>
+    </div>
+    <script>
+      $('#toggle').click(function(){
+        $('.ui.sidebar').sidebar('toggle');
+      });
+    </script>
   </body>
 </html>
