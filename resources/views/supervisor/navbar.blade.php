@@ -17,7 +17,7 @@
   <div class="item">
     <div class="header">Timecards</div>
     <div class="menu">
-      <a class="item" href="">View Active</a>
+      <a class="item" href="/supervisor/timecards/active">This Week</a>
       <a class="item" href="">View Unsigned</a>
       <a class="item" href="">View Submitted</a>
     </div>
@@ -25,7 +25,7 @@
   <div class="item">
     <div class="header">Payments</div>
     <div class="menu">
-      
+
     </div>
   </div>
   <div class="item">
