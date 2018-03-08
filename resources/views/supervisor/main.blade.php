@@ -141,11 +141,76 @@
           </div>
           @endif
 
-    
-          <div class="ui segment">
+
+          <!-- <div class="ui segment">
             stats go in here
-          </div>
+          </div> -->
+          @if ($unsignedTimecards)
           <h2 class="ui dividing header">Unsigned Timecards</h2>
+          <div class="ui styled fluid accordion">
+            @foreach ($unsignedTimecards as $timecard)
+            <div class="title">
+              <i class="dropdown icon"></i>
+              {{ $timecard->fullname }} | {{ $timecard->department }}
+            </div>
+            <div class="content">
+              <div class="ui internally celled grid">
+                <div class="four wide column center aligned middle aligned">
+                  <div class="ui blue large statistic">
+                    <div class="value">
+                      {{ $timecard->hours }}
+                    </div>
+                    <div class="label">
+                      Hours
+                    </div>
+                  </div>
+                </div>
+                <div class="eight wide column center aligned">
+                  <h3 class="ui blue header">{{ $timecard->dateRange }}</h3>
+                  <div class="ui tiny statistic">
+                    <div class="value">
+                      {{$timecard->tardies}}
+                    </div>
+                    <div class="label">
+                      Tardies
+                    </div>
+                  </div>
+                  <div class="ui tiny statistic">
+                    <div class="value">
+                      {{ $timecard->absences}}
+                    </div>
+                    <div class='label'>
+                      Absences
+                    </div>
+                  </div>
+                  <div class="ui tiny statistic">
+                    <div class="value">
+                      {{ strtoupper($timecard->grade) }}
+                    </div>
+                    <div class="label">
+                      Grade
+                    </div>
+                  </div>
+                  <div class="ui tiny statistic">
+                    <div class="value">
+                      {{ $timecard->pay}}
+                    </div>
+                    <div class="label">
+                      Pay
+                    </div>
+                  </div>
+
+                </div>
+                <div class="four wide column center aligned">
+                  <a class="ui tiny basic blue button" href="/supervisor/timecards/edit?id={{ $timecard->id }}">Edit</a>
+                  <a class="ui tiny orange button" href="/supervisor/timecards/sign?id={{$timecard->id}}">Sign</a>
+
+                </div>
+              </div>
+            </div>
+            @endforeach
+          </div>
+          @endif
           @if ($workers)
           <h3 class="ui dividing header">Workers</h3>
           <div class="ui three cards">
@@ -156,7 +221,7 @@
               </div>
               <div class="content">
                 <div class="header">
-                  <a>{{ $worker->fullname }}</a>
+                  {{ $worker->fullname }}
                 </div>
                 <div class="meta">
                   @foreach($worker->departmentNames as $name)
@@ -168,6 +233,10 @@
                 <a>
                   <i class="address card icon"></i>
                   {{ $worker->totalTimecards }}&nbsp;Timecards
+                </a><br />
+                <a>
+                  <i class="clipboard outline icon"></i>
+                  Attendance
                 </a>
               </div>
             </div>

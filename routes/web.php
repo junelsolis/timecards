@@ -62,3 +62,4 @@ Route::get('/supervisor/timecards/edit', 'SupervisorController@showTimecardEdit'
 Route::post('/supervisor/timecards/edit', 'SupervisorController@timecardEdit');
 Route::get('/supervisor/timecards/sign', 'SupervisorController@showTimecardSign');
 Route::post('/supervisor/timecards/sign', 'SupervisorController@timecardSign');
+Route::get('/supervisor/timecards/active', 'SupervisorController@showTimecardsActive');

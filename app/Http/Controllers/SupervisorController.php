@@ -14,6 +14,10 @@ class SupervisorController extends Controller
       $activeTimecards = $this->getSupervisorActiveTimecards();
       $sorted = $activeTimecards->sortBy('lastname');
 
+      // get unsigned timecardSign
+      $unsignedTimecards = $this->getSupervisorUnsignedTimecards();
+      $unsignedSorted = $unsignedTimecards->sortBy('lastname');
+
       // get workers
       $workers = $this->getWorkers();
       $sortedWorkers = $workers->sortBy('lastname');
@@ -21,6 +25,7 @@ class SupervisorController extends Controller
       // additional info for workers
       return view('/supervisor/main')
         ->with('activeTimecards', $sorted)
+        ->with('unsignedTimecards', $unsignedSorted)
         ->with('workers', $sortedWorkers);
 
     }
@@ -611,7 +616,7 @@ class SupervisorController extends Controller
         ]);
 
 
-      return redirect('/supervisor/timecards/edit?id='.$id)->with('msg', 'Timecard successfully updated.');
+      return redirect('/supervisor/')->with('msg', 'Timecard successfully updated.');
 
     }
     public function showTimecardSign(Request $request) {
@@ -681,6 +686,46 @@ class SupervisorController extends Controller
       $this->signTimecard($id);
 
       return redirect('/supervisor')->with('msg', 'Timecard successfully signed.');
+    }
+    public function showTimecardsActive() {
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
+
+      // get date range string
+      $startDate = '';
+      $endDate = '';
+
+      // get three-letter day of the week
+      $day = date('D', strtotime('now'));
+
+      if ($day === 'Sun') {
+
+        $startDate = date('Y-m-d', strtotime('now'));
+        $endDate = date('Y-m-d', strtotime('+6 days'));
+      }
+
+      switch ($day) {
+        case 'Sun':
+          $startDate = date('Y-m-d', strtotime('now'));
+          $endDate = date('Y-m-d', strtotime('+6 days'));
+          break;
+        default:
+          $startDate = date('Y-m-d', strtotime('Sunday last week'));
+          $sun = strtotime('Sunday last week');
+          $end = strtotime('+6 days', $sun);
+          $endDate = date('Y-m-d', $end);
+          break;
+      }
+
+      $dateRange = date('d F', strtotime($startDate)) . ' - ' . date('d F', strtotime($endDate));
+
+      // get active timecards
+      $timecards = $this->getSupervisorActiveTimecards();
+      $sorted = $timecards->sortBy('lastname');
+
+      return view('/supervisor/timecardsActive')
+        ->with('dateRange', $dateRange)
+        ->with('timecards', $sorted);
     }
 
     private function checkLoggedIn() {
@@ -848,7 +893,7 @@ class SupervisorController extends Controller
 
       return $items;
     }
-    private function getUnsignedTimecards() {
+    private function getSupervisorUnsignedTimecards() {
       $check = $this->checkLoggedIn();
       if ($check == true) {} else { return redirect('/'); }
 
@@ -868,7 +913,7 @@ class SupervisorController extends Controller
           break;
       }
 
-
+      // retrieve timecards and remove those that do not match the end date
       $timecards = DB::table('timecards')
         ->where('signed', 0)
         ->get();
@@ -882,15 +927,73 @@ class SupervisorController extends Controller
         }
       }
 
-      return $timecards;
+
+      // get supervisor department id's
+      $id = session('userId');
+      $deptIds = DB::table('superv_depts')->where('superv_id', $id)->get();
+      // get workers
+      $workers = DB::table('workers')->get();
+      // get departments
+      $departments = DB::table('departments')->get();
+
+      // collect timecards that match the dept id's
+      $items = collect();
+
+      foreach ($deptIds as $id) {
+        $cards = $timecards->where('dept_id', $id->dept_id);
+
+        foreach ($cards as $card) {
+
+          // retrieve worker
+          $worker = $workers->where('id', $card->worker_id)->first();
+
+          // retrieve department name
+          $department = $departments->where('id', $card->dept_id)->first();
+          $card->department = $department->name;
+
+          // insert worker fullname
+          $card->lastname = $worker->lastname;
+          $card->fullname = $worker->firstname . ' ' . $worker->lastname;
+
+          // insert date range string
+          $card->dateRange = date('d M', strtotime($card->startDate)) . ' - ' . date('d M', strtotime($card->endDate));
+
+          // count tardies
+          $card->tardies = $this->countTimecardTardies($card->id, $timecards);
+
+          // count absences
+          $card->absences = $this->countTimecardAbsences($card->id, $timecards);
+
+
+          $items->push($card);
+        }
+      }
+
+
+
+      return $items;
     }
 
     private function signTimecard($id) {
-      DB::table('timecards')->where('id', $id)->update(['signed' => true]);
+      // this function finalizes the pay calculation and signs the timecard
+      $payscale = DB::table('payscale')->get();
+      $timecard = DB::table('timecards')->where('id', $id)->first();
+
+      // finalize pay calculation
+      $factor = $payscale->where('grade', $timecard->grade)->pluck('pay');
+      $total = $timecard->hours + $timecard->contract;
+      $total = round($total, 2);
+      $pay = $total * $factor;
+
+      DB::table('timecards')->where('id', $id)
+        ->update([
+          'total' => $total,
+          'pay' => $pay,
+          'signed' => true
+        ]);
+
     }
-    private function payTimecard($id) {
-      DB::table('timecards')->where('id', $id)->update(['paid' => true]);
-    }
+
     private function getDepartments() {
       // this function returns all the departments the supervisor is assigned to
       $id = session('userId');
@@ -952,6 +1055,8 @@ class SupervisorController extends Controller
           $workerDepartments->push($dept->name);
         }
 
+
+
         $worker->totalTimecards = $totalTimecards;
         $worker->departmentNames = $workerDepartments;
       }
@@ -961,4 +1066,38 @@ class SupervisorController extends Controller
 
 
     }
+
+    private function countTimecardTardies($id, $timecards) {
+      // receives a timecard id and a collection of timecards and counts the number of tardies in that timecard
+      $timecard = $timecards->where('id', $id)->first();
+
+      $count = 0;
+
+      if ($timecard->sunTardy == 1) { $count++; }
+      if ($timecard->monTardy == 1) { $count++; }
+      if ($timecard->tueTardy == 1) { $count++; }
+      if ($timecard->wedTardy == 1) { $count++; }
+      if ($timecard->thuTardy == 1) { $count++; }
+      if ($timecard->friTardy == 1) { $count++; }
+
+
+      return $count;
+    }
+    private function countTimecardAbsences($id, $timecards) {
+      // receives a timecard id and a collection of timecards and counts the number of absences in that timecard
+      $timecard = $timecards->where('id', $id)->first();
+
+      $count = 0;
+
+      if ($timecard->sunAbsent == 1) { $count++; }
+      if ($timecard->monAbsent == 1) { $count++; }
+      if ($timecard->tueAbsent == 1) { $count++; }
+      if ($timecard->wedAbsent == 1) { $count++; }
+      if ($timecard->thuAbsent == 1) { $count++; }
+      if ($timecard->friAbsent == 1) { $count++; }
+      if ($timecard->satAbsent == 1) { $count++; }
+
+      return $count;
+    }
+
 }
