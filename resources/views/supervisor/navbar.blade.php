@@ -48,6 +48,11 @@
     </div>
   </div>
   <div class="item">
+    <div class="header">
+      <a href="/logout">Logout</a>
+    </div>
+  </div>
+  <div class="item">
     <p class="grey" style="font-size: 0.8em;">
       <em>Created by Junel R.S. Solis&nbsp;|&nbsp;MAA</em>
     </p>
