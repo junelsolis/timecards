@@ -83,22 +83,22 @@
                       </p>
                       <div class="two fields">
                         <div class="field">
-                          <label>Time In</label>
+                          <label class="ui blue header">Time In</label>
                           <input type="time" name="in1" value="<?php echo $item->{$in1}; ?>" />
                         </div>
                         <div class="field">
-                          <label>Time Out</label>
+                          <label class="ui blue header">Time Out</label>
                           <input type="time" name="out1" value="<?php echo $item->{$out1}; ?>"/>
                         </div>
                       </div>
                       <br />
                       <div class="two fields">
                         <div class="field">
-                          <label>Time In</label>
+                          <label class="ui blue header">Time In</label>
                           <input type="time" name="in2" value="<?php echo $item->{$in2}; ?>"/>
                         </div>
                         <div class="field">
-                          <label>Time Out</label>
+                          <label class="ui blue header">Time Out</label>
                           <input type="time" name="out2" value="<?php echo $item->{$out2}; ?>"/>
                         </div>
                       </div>

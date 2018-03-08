@@ -1,0 +1,19 @@
+{
+  "logger": {
+    "title": "Remote Sync"
+  },
+  "uploadOnSave": false,
+  "useAtomicWrites": false,
+  "deleteLocal": false,
+  "hostname": "timecards.maxwellsda.org",
+  "port": "22",
+  "target": "/var/www/html/timecards/",
+  "ignore": [
+    ".remote-sync.json",
+    ".git/**"
+  ],
+  "username": "root",
+  "password": "C#ryptop5579",
+  "watch": [],
+  "transport": "scp"
+}
