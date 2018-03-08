@@ -449,43 +449,23 @@ class CoordinatorController extends Controller
     public function showWorkerEditItem(Request $request) {
       $check = $this->checkLoggedIn();
       if ($check == true) {} else { return redirect('/'); }
+
       $request->validate([
         'id' => 'required|integer'
       ]);
 
 
-      // get worker id
       $id = $request['id'];
+      $worker = $this->getWorker($id);
 
-      // retrieve object with id from database
-      $worker = DB::table('workers')->where('id', $id)->first();
-
-      // short email
-      $pieces = explode('@', $worker->email);
-      $short = $pieces[0];
-      $worker->short = $short;
-
-      // retrieve and add departments array to supervisor object
-      $deptIds = DB::table('worker_depts')->where('worker_id', $worker->id)->pluck('dept_id');
-      $workerDepts = collect();
-
-
-
-      foreach ($deptIds as $i) {
-        $dept = DB::table('departments')->where('id', $i)->get();
-        $workerDepts->push($dept);
-      }
-
-      $worker->deptIds = $deptIds;
-      $worker->workerDepts = $workerDepts;
-
-      // get all possible departments and split into two chunks
-      $allDepts = DB::table('departments')->orderBy('name')->get();
-      $allDepts = $allDepts->split(2);
+      // get all possible departments and split into two
+      $depts = DB::table('departments')->orderBy('name')->get();
+      $depts = $depts->split(2);
 
       return view('/coordinator/workerEditItem')
         ->with('worker', $worker)
-        ->with('allDepts', $allDepts);
+        ->with('depts', $depts);
+
 
 
 
@@ -493,38 +473,23 @@ class CoordinatorController extends Controller
     public function workerEditItem(Request $request) {
       $check = $this->checkLoggedIn();
       if ($check == true) {} else { return redirect('/'); }
-      // attach domain to username entry
-      $request['username'] = $request['username'] . '@maxwellsda.org';
 
-      // validate request
       $request->validate([
-        'username' => 'email|required',
-        'firstname' => 'alpha|required',
-        'lastname' => 'string|required',
-        'departments' => 'array|required'
+        'id' => 'required|integer',
+        'departments' => 'nullable|array'
       ]);
 
-      // assign and sanitize data
       $id = $request['id'];
-      $username = strtolower($request['username']);
-      $firstname = ucwords($request['firstname']);
-      $lastname = ucwords($request['lastname']);
       $departments = $request['departments'];
 
-      // update worker with corresponding id in db
-      DB::table('workers')->where('id', $id)->update([
-        'email' => $username,
-        'firstname' => $firstname,
-        'lastname' => $lastname
-      ]);
-
-      // remove existing entires from worker_depts table
-      // then insert new entries
+      // delete all department entries for this worker
       DB::table('worker_depts')->where('worker_id', $id)->delete();
-      foreach ($departments as $i) {
+
+      // make new entries for each department
+      foreach ($departments as $item) {
         DB::table('worker_depts')->insert([
           'worker_id' => $id,
-          'dept_id' => $i
+          'dept_id' => $item
         ]);
       }
 
@@ -577,13 +542,96 @@ class CoordinatorController extends Controller
     }
     public function showPaymentPeriodsAdd() {
       $check = $this->checkLoggedIn();
-if ($check == true) {} else { return redirect('/'); }
+      if ($check == true) {} else { return redirect('/'); }
 
       return view('/coordinator/paymentPeriodsAdd');
     }
+    public function showPaymentPeriodsReport(Request $request) {
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
+
+      $request->validate([
+        'id' => 'required|integer'
+      ]);
+
+      $id = $request['id'];
+
+      // get period from DB
+      $period = DB::table('payment_periods')->where('id', $id)->first();
+      // all timecards from DB;
+      $timecards = DB::table('timecards')->get();
+
+
+      // store all associated timecards
+      $timecards = $this->getPeriodTimecards($period, $timecards);
+
+      // total of all timecards
+      $period->totalTimecards = $timecards->count();
+
+      // total payment
+      $period->totalPayment = number_format($timecards->sum('pay'));
+      // add date range
+      $startDate = strtotime($period->startDate);
+      $endDate = strtotime($period->endDate);
+
+      $period->dateRange = date('d F', $startDate) . ' - ' . date('d F', $endDate);
+
+
+      // add all workers and their assoc relevant information
+      $workers = DB::table('workers')
+        ->orderBy('lastname')
+        ->select('id', 'firstname', 'lastname', 'email')
+        ->get();
+
+        $period->workers = $workers;
+
+        foreach ($period->workers as $worker) {
+          // append fullname
+          $worker->fullname = $worker->firstname . ' ' . $worker->lastname;
+
+          // append associated timecards
+          $cards = $timecards->where('worker_id', $worker->id);
+
+          // append total hours
+          $total = 0;
+          foreach ($cards as $timecard) {
+            $total += $timecard->hours;
+          }
+          $worker->totalHours = round($total,2);
+
+          // append total pay
+          $total = 0;
+          foreach ($cards as $timecard) {
+            $total += $timecard->pay;
+          }
+          $worker->totalPay = $total;
+
+          // append tithe
+          $total = 0;
+          foreach ($cards as $timecard) {
+            $tithe = $timecard->pay * 0.10;
+            $total += $tithe;
+          }
+          $worker->totalTithe = round($total);
+
+          $worker->netPay = ($worker->totalPay) - ($worker->totalTithe);
+        }
+
+        // calculate totalTithe
+        $totalTithe = 0;
+        foreach ($period->workers as $worker) {
+          $total = $worker->totalTithe;
+          $totalTithe += $total;
+        }
+        $period->totalTithe = number_format($totalTithe);
+
+      return view('/coordinator/paymentPeriodsReport')
+        ->with('item', $period)
+        ->with('workers', $workers);
+    }
     public function paymentPeriodsAdd(Request $request) {
       $check = $this->checkLoggedIn();
-if ($check == true) {} else { return redirect('/'); }
+      if ($check == true) {} else { return redirect('/'); }
 
       // validate request
       $request->validate([
@@ -618,55 +666,47 @@ if ($check == true) {} else { return redirect('/'); }
     }
     public function showPay() {
       $check = $this->checkLoggedIn();
-if ($check == true) {} else { return redirect('/'); }
+      if ($check == true) {} else { return redirect('/'); }
 
-      // get payment periods
-      $periods = DB::table('payment_periods')->orderBy('startDate', 'desc')->get();
-
+      // get all payment periods
+      $periods = DB::table('payment_periods')->orderBy('endDate', 'desc')->get();
       // get all timecards
-      $all = DB::table('timecards')->select('startDate', 'endDate', 'pay', 'paid')->get();
+      $timecards = DB::table('timecards')->get();
 
+      foreach ($periods as $period) {
+        $cards = $this->getPeriodTimecards($period, $timecards);
 
-      foreach ($periods as $i) {
-        // form date range string
-        $start = date('d M', strtotime($i->startDate));
-        $end = date('d M', strtotime($i->endDate));
-        $range = $start . ' - ' . $end;
+        // total timecards
+        $period->totalTimecards = $cards->count();
+        // unsigned timecards
+        $period->unsignedTimecards = $cards->where('signed', 0)->where('paid', 0)->count();
+        // submitted timecards
+        $period->submittedTimecards = $cards->where('signed', 1)->where('paid', 0)->count();
+        // remaining timecards
+        $period->remainingTimecards = $cards->count() - $cards->where('signed', 0)->count();
 
-        // count associated timecards
-        $associated = 0;
-        $payment = 0;
-        $paid = true;
+        // total payment
+        $period->totalPayment = number_format($cards->sum('pay'));
 
-        foreach ($all as $timecard) {
-          $cardStart = strtotime($timecard->startDate);
-          $cardEnd = strtotime($timecard->endDate);
-          $periodStart = strtotime($i->startDate);
-          $periodEnd = strtotime($i->endDate);
+        // date range
+        $startDate = strtotime($period->startDate);
+        $endDate = strtotime($period->endDate);
 
-          if ($cardStart >= $periodStart && $cardEnd <= $periodEnd) {
-            $associated++;
-            $payment += $timecard->pay;
-
-            if ($timecard->paid == false) {
-              $paid = false;
-            }
-          }
-
-
-        }
-
-        $i->range = $range;
-        $i->associated = $associated;
-        $i->payment = number_format($payment);
-        $i->paid = $paid;
+        $period->dateRange = date('d M', $startDate) . ' - ' . date('d M', $endDate);
       }
 
-      return view('/coordinator/paymentsPay')->with('periods', $periods);
+      $unpaid = $periods->where('paid', 0);
+      $paid = $periods->where('paid', 1);
+
+
+      return view('/coordinator/paymentsPay')
+        ->with('unpaid', $unpaid)
+        ->with('paid', $paid);
+
     }
     public function showPaySelected(Request $request) {
       $check = $this->checkLoggedIn();
-if ($check == true) {} else { return redirect('/'); }
+      if ($check == true) {} else { return redirect('/'); }
 
       // validate request
       $request->validate([
@@ -720,7 +760,7 @@ if ($check == true) {} else { return redirect('/'); }
     }
     public function showPaySelectedUnsigned(Request $request) {
       $check = $this->checkLoggedIn();
-if ($check == true) {} else { return redirect('/'); }
+      if ($check == true) {} else { return redirect('/'); }
 
       // this function retrieves all unsigned timecards for the specified payment period
       $timecards = DB::table('timecards')->where('signed', 0)->where('paid',0)
@@ -779,7 +819,7 @@ if ($check == true) {} else { return redirect('/'); }
     }
     public function paySelectedUnsignedSign(Request $request) {
       $check = $this->checkLoggedIn();
-if ($check == true) {} else { return redirect('/'); }
+      if ($check == true) {} else { return redirect('/'); }
 
       $request->validate([
         'id' => 'required',
@@ -803,7 +843,7 @@ if ($check == true) {} else { return redirect('/'); }
     public function paySelectedUnsignedRemind(Request $request) {}
     public function showPayscale() {
       $check = $this->checkLoggedIn();
-if ($check == true) {} else { return redirect('/'); }
+      if ($check == true) {} else { return redirect('/'); }
 
       // get all payscales
       $payscales = DB::table('payscale')->get();
@@ -833,7 +873,7 @@ if ($check == true) {} else { return redirect('/'); }
     }
     public function setPayscale(Request $request) {
       $check = $this->checkLoggedIn();
-if ($check == true) {} else { return redirect('/'); }
+      if ($check == true) {} else { return redirect('/'); }
 
       // validate form variables
       $request->validate([
@@ -857,7 +897,7 @@ if ($check == true) {} else { return redirect('/'); }
 
     public function timecardsImport() {
       $check = $this->checkLoggedIn();
-if ($check == true) {} else { return redirect('/'); }
+      if ($check == true) {} else { return redirect('/'); }
 
       // get all timecards to import
       $timecards = DB::table('import')->get();
@@ -947,13 +987,13 @@ if ($check == true) {} else { return redirect('/'); }
     }
     public function showTimecardsCreate() {
       $check = $this->checkLoggedIn();
-if ($check == true) {} else { return redirect('/'); }
+      if ($check == true) {} else { return redirect('/'); }
 
       return view('/coordinator/timecardsCreate');
     }
     public function timecardsCreate(Request $request) {
       $check = $this->checkLoggedIn();
-if ($check == true) {} else { return redirect('/'); }
+      if ($check == true) {} else { return redirect('/'); }
 
       // validate input
       $request->validate([
@@ -1013,7 +1053,7 @@ if ($check == true) {} else { return redirect('/'); }
     }
     public function showTimecardsActive() {
       $check = $this->checkLoggedIn();
-if ($check == true) {} else { return redirect('/'); }
+      if ($check == true) {} else { return redirect('/'); }
 
       // this next section establishes the starting and ending date this week
 
@@ -1092,7 +1132,7 @@ if ($check == true) {} else { return redirect('/'); }
     }
     public function showTimecardsUnsigned() {
       $check = $this->checkLoggedIn();
-if ($check == true) {} else { return redirect('/'); }
+      if ($check == true) {} else { return redirect('/'); }
 
       $timecards = $this->getUnsignedTimecards();
 
@@ -1136,7 +1176,7 @@ if ($check == true) {} else { return redirect('/'); }
     }
     public function showTimecardsSubmitted() {
       $check = $this->checkLoggedIn();
-if ($check == true) {} else { return redirect('/'); }
+      if ($check == true) {} else { return redirect('/'); }
 
       // get all timecards unpaid but signed
       $timecards = DB::table('timecards')
@@ -1184,7 +1224,7 @@ if ($check == true) {} else { return redirect('/'); }
     }
     public function timecardsSubmittedReturn(Request $request) {
       $check = $this->checkLoggedIn();
-if ($check == true) {} else { return redirect('/'); }
+      if ($check == true) {} else { return redirect('/'); }
 
       $request->validate([
         'id' => 'required|integer'
@@ -1268,7 +1308,7 @@ if ($check == true) {} else { return redirect('/'); }
     }
     private function countActiveTimecards() {
       $check = $this->checkLoggedIn();
-if ($check == true) {} else { return redirect('/'); }
+      if ($check == true) {} else { return redirect('/'); }
 
       // empty strings to hold start and end dates
       $startDate = '';
@@ -1306,10 +1346,10 @@ if ($check == true) {} else { return redirect('/'); }
     }
     private function countUnsignedTimecards() {
       $check = $this->checkLoggedIn();
-if ($check == true) {} else { return redirect('/'); }
+      if ($check == true) {} else { return redirect('/'); }
 
       $check = $this->checkLoggedIn();
-if ($check == true) {} else { return redirect('/'); }
+      if ($check == true) {} else { return redirect('/'); }
 
       // this next section establishes the saturday of last week
       $endDate = '';
@@ -1345,7 +1385,7 @@ if ($check == true) {} else { return redirect('/'); }
     }
     private function countSubmittedTimecards() {
       $check = $this->checkLoggedIn();
-if ($check == true) {} else { return redirect('/'); }
+      if ($check == true) {} else { return redirect('/'); }
 
       $count = DB::table('timecards')->where('signed', 1)->where('paid', 0)->count();
 
@@ -1353,7 +1393,7 @@ if ($check == true) {} else { return redirect('/'); }
     }
     private function getActiveTimecards() {
       $check = $this->checkLoggedIn();
-if ($check == true) {} else { return redirect('/'); }
+      if ($check == true) {} else { return redirect('/'); }
 
       // empty strings to hold start and end dates
       $startDate = '';
@@ -1455,5 +1495,79 @@ if ($check == true) {} else { return redirect('/'); }
       if ($timecard->satAbsent == true) { $count++; }
 
       return $count;
+    }
+
+    private function getWorker($id) {
+      // receives a worker id and returns a worker object with additional information
+      $worker = DB::table('workers')->where('id', $id)->first();
+
+      $departments = DB::table('departments')->get();
+      $workerDepts = DB::table('worker_depts')->where('worker_id', $id)->get();
+      $timecards = DB::table('timecards')->where('worker_id', $id)->get();
+
+      // add collection of department names
+      $departmentNames = collect();
+      foreach ($workerDepts as $item) {
+        $department = $departments->where('id', $item->dept_id)->first();
+        $departmentNames->push($department->name);
+      }
+
+      $worker->departmentNames = $departmentNames;
+
+      // add array of department id's
+      $array = array();
+      foreach ($workerDepts as $item) {
+        $deptId = $departments->where('id', $item->dept_id)->first();
+        $array[] = $deptId->id;
+      }
+
+      $worker->deptIds = $array;
+
+
+      // add departments count
+      $worker->totalDepartments = $workerDepts->count();
+      // add timecards count
+      $worker->totalTimecards = $timecards->count();
+
+      // count total tardies
+      $count = 0;
+      foreach ($timecards as $card) {
+        $tardies = $this->countTimecardTardies($card);
+        $count = $count + $tardies;
+      }
+      $worker->totalTardies = $count;
+
+      // count total absences
+      $count = 0;
+      foreach ($timecards as $card) {
+        $absences = $this->countTimecardAbsences($card);
+        $count = $count + $absences;
+      }
+      $worker->totalAbsences = $count;
+
+      // add fullname
+      $worker->fullname = $worker->firstname . ' ' . $worker->lastname;
+
+      return $worker;
+
+    }
+
+    private function getPeriodTimecards($period, $timecards) {
+      // this function takes a payment period and timecards and returns all the timecards within that period
+
+      $periodStart = strtotime($period->startDate);
+      $periodEnd = strtotime($period->endDate);
+
+      $cards = collect();
+      foreach ($timecards as $card) {
+        $cardStart = strtotime($card->startDate);
+        $cardEnd = strtotime($card->endDate);
+
+        if ($cardStart >= $periodStart && $cardEnd <= $periodEnd) {
+          $cards->push($card);
+        }
+      }
+
+      return $cards;
     }
 }
