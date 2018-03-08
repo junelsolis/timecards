@@ -89,4 +89,14 @@ class LoginController extends Controller
       return redirect('/supervisor');
 
     }
+
+    public function logout() {
+      // delete session variables
+      session()->forget('userId');
+      session()->forget('role');
+      session()->forget('fullname');
+
+      // redirect to login page
+      return redirect('/');
+    }
 }
