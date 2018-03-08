@@ -34,11 +34,11 @@
         Login to Timecards
       </div>
     </h2><br /><br />
-    <div class="fluid ui basic buttons">
+    <!-- <div class="fluid ui basic buttons"> -->
       <a class="ui large button disabled" href="/login/worker">Worker</a>
-      <a class="ui large button" href="/login/supervisor">Supervisor</a>
-      <a class="ui large button" href="/login/coordinator">Coordinator</a>
-    </div>
+      <a class="ui large basic blue button" href="/login/supervisor">Supervisor</a>
+      <a class="ui large basic blue button" href="/login/coordinator">Coordinator</a>
+    <!-- </div> -->
   </div>
 </div>
 </body>

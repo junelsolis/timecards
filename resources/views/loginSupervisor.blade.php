@@ -38,7 +38,7 @@
       {{ csrf_field() }}
         <div class="field">
           <div class="ui right labeled input">
-            <input type="text" name="email" placeholder="Email address" required>
+            <input type="text" name="email" placeholder="First half of email address" required>
             <div class="ui label">
               <div class="text">@maxwellsda.org</div>
             </div>
@@ -68,6 +68,7 @@
     <div class="ui message">
       Forgot your password? <a href="#">Reset</a>
     </div>
+    <a href="/"><< Back to Login</a>
   </div>
 </div>
 <script>$('.message .close')
