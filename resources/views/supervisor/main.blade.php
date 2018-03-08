@@ -65,19 +65,19 @@
               <div class="ui internally celled grid">
                 <div class="row">
                   <div class="four wide column">
-                    <h4>Summary</h4>
-                    Grade {{ strtoupper($item->grade) }}<br />
-                    Hours {{ $item->hours }}<br />
-                    Estimate Ksh{{ $item->estimate }}<br /><br /><br />
+                    <h4 class="ui blue header">Summary</h4>
+                    <strong>Grade</strong> {{ strtoupper($item->grade) }}<br />
+                    <strong>Hours</strong> {{ $item->hours }}h<br />
+                    <strong>Estimate</strong> Ksh{{ $item->estimate }}<br /><br /><br />
                     <a class="mini ui green basic button" href="/supervisor/timecards/edit?id={{ $item->id }}">Edit</a>
                     <a class="mini ui orange button" href="/supervisor/timecards/sign?id={{ $item->id }}">Sign</a>
                   </div>
-                  <div class="twelve wide column">
+                  <div class="twelve wide column middle aligned">
                     <form class="ui fluid form" action="/supervisor/timecards/quick-edit" method="post">
                       {{ csrf_field() }}
                       <input type="hidden" name="id" value="{{ $item->id }}" />
                       <input type="hidden" name="day" value="{{ $day }}" />
-                      <h4>Quick Entry</h4>
+                      <h3 class="ui yellow header">Quick Entry</h3>
                       <p class="text">
                         Quick entry allows you to input work times for this day only.
                       </p>
@@ -145,7 +145,7 @@
           <!-- <div class="ui segment">
             stats go in here
           </div> -->
-          @if ($unsignedTimecards)
+          @if (count($unsignedTimecards) > 0)
           <h2 class="ui dividing header">Unsigned Timecards</h2>
           <div class="ui styled fluid accordion">
             @foreach ($unsignedTimecards as $timecard)
