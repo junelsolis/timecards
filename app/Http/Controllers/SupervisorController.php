@@ -888,7 +888,7 @@ class SupervisorController extends Controller
         // pay estimate
         $factor = $payscale->where('grade', $card->grade)->first();
         $estimate = $card->hours * $factor->pay;
-        $card->estimate = $estimate;
+        $card->estimate = round($estimate);
       }
 
       return $items;
