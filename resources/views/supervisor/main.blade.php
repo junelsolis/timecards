@@ -69,7 +69,7 @@
                     <strong>Grade</strong> {{ strtoupper($item->grade) }}<br />
                     <strong>Hours</strong> {{ $item->hours }}h<br />
                     <strong>Estimate</strong> Ksh{{ $item->estimate }}<br /><br /><br />
-                    <a class="mini ui green basic button" href="/supervisor/timecards/edit?id={{ $item->id }}">Edit</a>
+                    <a class="mini ui blue basic button" href="/supervisor/timecards/edit?id={{ $item->id }}">Edit</a>
                     <a class="mini ui orange button" href="/supervisor/timecards/sign?id={{ $item->id }}">Sign</a>
                   </div>
                   <div class="twelve wide column middle aligned">

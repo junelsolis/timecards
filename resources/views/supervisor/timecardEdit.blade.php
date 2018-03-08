@@ -44,26 +44,43 @@
           <h1 class="ui dividing header">
             Edit Timecard
           </h1>
-          <div class='ui fluid card'>
-            <div class='content'>
-              <div class="right floated meta">
-                {{ $timecard->department }}
-              </div>
-              <img class="ui avatar image" src="{{ asset('/images/matthew.png') }}"/>{{ $timecard->fullname }}
-              <h5 class="ui dividing header"></h5>
-              <div class="ui two column grid">
-                <div class="column">
-                  <strong>Date</strong> {{ $timecard->dateRange }}<br />
-                  <strong>Grade</strong> {{ strtoupper($timecard->grade) }}
+          <br />
+          <div class="ui internally celled grid">
+            <div class="seven wide column">
+              <h2 class="ui header">{{ $timecard->fullname }}</h2>
+              <h3 class="ui blue header">{{ $timecard->dateRange}} | {{ $timecard->department }}</h3>
+            </div>
+            <div class="three wide column center aligned">
+              <div class="ui fluid blue statistic">
+                <div class="value">
+                  {{ $timecard->grade }}
                 </div>
-                <div class="column">
-                  <strong>Hours</strong> {{ $timecard->hours }}h<br />
-                  <strong>Est. Pay</strong> {{ $timecard->pay }} Ksh
+                <div class="label">
+                  Grade
+                </div>
+              </div>
+            </div>
+            <div class="three wide column center aligned">
+              <div class="ui fluid blue statistic">
+                <div class="value">
+                  {{ $timecard->hours }}
+                </div>
+                <div class="label">
+                  Hours
+                </div>
+              </div>
+            </div>
+            <div class="three wide column center aligned">
+              <div class="ui yellow statistic">
+                <div class="value">
+                  {{ $timecard->pay }}
+                </div>
+                <div class="label">
+                  Pay Estimate
                 </div>
               </div>
             </div>
           </div>
-
           <form class="ui form" action="/supervisor/timecards/edit" method="post">
             {{ csrf_field() }}
             <input type="hidden" name="id" value="{{ $timecard->id }}" />
