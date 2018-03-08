@@ -44,26 +44,43 @@
           <h1 class="ui dividing header">
             Edit Timecard
           </h1>
-          <div class='ui fluid card'>
-            <div class='content'>
-              <div class="right floated meta">
-                {{ $timecard->department }}
-              </div>
-              <img class="ui avatar image" src="{{ asset('/images/matthew.png') }}"/>{{ $timecard->fullname }}
-              <h5 class="ui dividing header"></h5>
-              <div class="ui two column grid">
-                <div class="column">
-                  <strong>Date</strong> {{ $timecard->dateRange }}<br />
-                  <strong>Grade</strong> {{ strtoupper($timecard->grade) }}
+          <br />
+          <div class="ui internally celled grid">
+            <div class="seven wide column">
+              <h2 class="ui header">{{ $timecard->fullname }}</h2>
+              <h3 class="ui blue header">{{ $timecard->dateRange}} | {{ $timecard->department }}</h3>
+            </div>
+            <div class="three wide column center aligned">
+              <div class="ui fluid blue statistic">
+                <div class="value">
+                  {{ $timecard->grade }}
                 </div>
-                <div class="column">
-                  <strong>Hours</strong> {{ $timecard->hours }}h<br />
-                  <strong>Est. Pay</strong> {{ $timecard->pay }} Ksh
+                <div class="label">
+                  Grade
+                </div>
+              </div>
+            </div>
+            <div class="three wide column center aligned">
+              <div class="ui fluid blue statistic">
+                <div class="value">
+                  {{ $timecard->hours }}
+                </div>
+                <div class="label">
+                  Hours
+                </div>
+              </div>
+            </div>
+            <div class="three wide column center aligned">
+              <div class="ui yellow statistic">
+                <div class="value">
+                  {{ $timecard->pay }}
+                </div>
+                <div class="label">
+                  Pay Estimate
                 </div>
               </div>
             </div>
           </div>
-
           <form class="ui form" action="/supervisor/timecards/edit" method="post">
             {{ csrf_field() }}
             <input type="hidden" name="id" value="{{ $timecard->id }}" />
@@ -72,7 +89,7 @@
               <div class="content">
                 <div class="ui internally celled grid">
                   <div class="three wide column middle aligned center aligned">
-                    <h1 class="ui blue header">SUN</h1>
+                    <h1 class="ui yellow header">SUN</h1>
                     <p class="text">
                       {{ $timecard->dates[0] }}
                     </p>
@@ -80,21 +97,21 @@
                   <div class="nine wide column">
                     <div class="two fields">
                       <div class="field">
-                        <label>Time In 1</label>
+                        <label class="ui blue header">Time In 1</label>
                         <input type="time" name="sunTimeIn1" value="{{ $timecard->sunTimeIn1}}" />
                       </div>
                       <div class="field">
-                        <label>Time Out 1</label>
+                        <label class="ui blue header">Time Out 1</label>
                         <input type="time" name="sunTimeOut1" value="{{ $timecard->sunTimeOut1 }}"/>
                       </div>
                     </div>
                     <div class="two fields">
                       <div class="field">
-                        <label>Time In 2</label>
+                        <label class="ui blue header">Time In 2</label>
                         <input type="time" name="sunTimeIn2" value="{{ $timecard->sunTimeIn2 }}" />
                       </div>
                       <div class="field">
-                        <label>Time Out 2</label>
+                        <label class="ui blue header">Time Out 2</label>
                         <input type="time" name="sunTimeOut2" value="{{ $timecard->sunTimeOut2 }}" />
                       </div>
                     </div>
@@ -134,7 +151,7 @@
               <div class="content">
                 <div class="ui internally celled grid">
                   <div class="three wide column middle aligned center aligned">
-                    <h1 class="ui blue header">MON</h1>
+                    <h1 class="ui yellow header">MON</h1>
                     <p class="text">
                       {{ $timecard->dates[1] }}
                     </p>
@@ -142,21 +159,21 @@
                   <div class="nine wide column">
                     <div class="two fields">
                       <div class="field">
-                        <label>Time In 1</label>
+                        <label class="ui blue header">Time In 1</label>
                         <input type="time" name="monTimeIn1" value="{{ $timecard->monTimeIn1}}" />
                       </div>
                       <div class="field">
-                        <label>Time Out 1</label>
+                        <label class="ui blue header">Time Out 1</label>
                         <input type="time" name="monTimeOut1" value="{{ $timecard->monTimeOut1 }}"/>
                       </div>
                     </div>
                     <div class="two fields">
                       <div class="field">
-                        <label>Time In 2</label>
+                        <label class="ui blue header">Time In 2</label>
                         <input type="time" name="monTimeIn2" value="{{ $timecard->monTimeIn2 }}" />
                       </div>
                       <div class="field">
-                        <label>Time Out 2</label>
+                        <label class="ui blue header">Time Out 2</label>
                         <input type="time" name="monTimeOut2" value="{{ $timecard->monTimeOut2 }}" />
                       </div>
                     </div>
@@ -195,7 +212,7 @@
               <div class="content">
                 <div class="ui internally celled grid">
                   <div class="three wide column middle aligned center aligned">
-                    <h1 class="ui blue header">TUE</h1>
+                    <h1 class="ui yellow header">TUE</h1>
                     <p class="text">
                       {{ $timecard->dates[2] }}
                     </p>
@@ -203,21 +220,21 @@
                   <div class="nine wide column">
                     <div class="two fields">
                       <div class="field">
-                        <label>Time In 1</label>
+                        <label class="ui blue header">Time In 1</label>
                         <input type="time" name="tueTimeIn1" value="{{ $timecard->tueTimeIn1}}" />
                       </div>
                       <div class="field">
-                        <label>Time Out 1</label>
+                        <label class="ui blue header">Time Out 1</label>
                         <input type="time" name="tueTimeOut1" value="{{ $timecard->tueTimeOut1 }}"/>
                       </div>
                     </div>
                     <div class="two fields">
                       <div class="field">
-                        <label>Time In 2</label>
+                        <label class="ui blue header">Time In 2</label>
                         <input type="time" name="tueTimeIn2" value="{{ $timecard->tueTimeIn2 }}" />
                       </div>
                       <div class="field">
-                        <label>Time Out 2</label>
+                        <label class="ui blue header">Time Out 2</label>
                         <input type="time" name="tueTimeOut2" value="{{ $timecard->tueTimeOut2 }}" />
                       </div>
                     </div>
@@ -256,7 +273,7 @@
               <div class="content">
                 <div class="ui internally celled grid">
                   <div class="three wide column middle aligned center aligned">
-                    <h1 class="ui blue header">WED</h1>
+                    <h1 class="ui yellow header">WED</h1>
                     <p class="text">
                       {{ $timecard->dates[3] }}
                     </p>
@@ -264,21 +281,21 @@
                   <div class="nine wide column">
                     <div class="two fields">
                       <div class="field">
-                        <label>Time In 1</label>
+                        <label class="ui blue header">Time In 1</label>
                         <input type="time" name="wedTimeIn1" value="{{ $timecard->wedTimeIn1}}" />
                       </div>
                       <div class="field">
-                        <label>Time Out 1</label>
+                        <label class="ui blue header">Time Out 1</label>
                         <input type="time" name="wedTimeOut1" value="{{ $timecard->wedTimeOut1 }}"/>
                       </div>
                     </div>
                     <div class="two fields">
                       <div class="field">
-                        <label>Time In 2</label>
+                        <label class="ui blue header">Time In 2</label>
                         <input type="time" name="wedTimeIn2" value="{{ $timecard->wedTimeIn2 }}" />
                       </div>
                       <div class="field">
-                        <label>Time Out 2</label>
+                        <label class="ui blue header">Time Out 2</label>
                         <input type="time" name="wedTimeOut2" value="{{ $timecard->wedTimeOut2 }}" />
                       </div>
                     </div>
@@ -317,7 +334,7 @@
               <div class="content">
                 <div class="ui internally celled grid">
                   <div class="three wide column middle aligned center aligned">
-                    <h1 class="ui blue header">THU</h1>
+                    <h1 class="ui yellow header">THU</h1>
                     <p class="text">
                       {{ $timecard->dates[4] }}
                     </p>
@@ -325,21 +342,21 @@
                   <div class="nine wide column">
                     <div class="two fields">
                       <div class="field">
-                        <label>Time In 1</label>
+                        <label class="ui blue header">Time In 1</label>
                         <input type="time" name="thuTimeIn1" value="{{ $timecard->thuTimeIn1}}" />
                       </div>
                       <div class="field">
-                        <label>Time Out 1</label>
+                        <label class="ui blue header">Time Out 1</label>
                         <input type="time" name="thuTimeOut1" value="{{ $timecard->thuTimeOut1 }}"/>
                       </div>
                     </div>
                     <div class="two fields">
                       <div class="field">
-                        <label>Time In 2</label>
+                        <label class="ui blue header">Time In 2</label>
                         <input type="time" name="thuTimeIn2" value="{{ $timecard->thuTimeIn2 }}" />
                       </div>
                       <div class="field">
-                        <label>Time Out 2</label>
+                        <label class="ui blue header">Time Out 2</label>
                         <input type="time" name="thuTimeOut2" value="{{ $timecard->thuTimeOut2 }}" />
                       </div>
                     </div>
@@ -378,7 +395,7 @@
               <div class="content">
                 <div class="ui internally celled grid">
                   <div class="three wide column middle aligned center aligned">
-                    <h1 class="ui blue header">FRI</h1>
+                    <h1 class="ui yellow header">FRI</h1>
                     <p class="text">
                       {{ $timecard->dates[5] }}
                     </p>
@@ -386,21 +403,21 @@
                   <div class="nine wide column">
                     <div class="two fields">
                       <div class="field">
-                        <label>Time In 1</label>
+                        <label class="ui blue header">Time In 1</label>
                         <input type="time" name="friTimeIn1" value="{{ $timecard->friTimeIn1}}" />
                       </div>
                       <div class="field">
-                        <label>Time Out 1</label>
+                        <label class="ui blue header">Time Out 1</label>
                         <input type="time" name="friTimeOut1" value="{{ $timecard->friTimeOut1 }}"/>
                       </div>
                     </div>
                     <div class="two fields">
                       <div class="field">
-                        <label>Time In 2</label>
+                        <label class="ui blue header">Time In 2</label>
                         <input type="time" name="friTimeIn2" value="{{ $timecard->friTimeIn2 }}" />
                       </div>
                       <div class="field">
-                        <label>Time Out 2</label>
+                        <label class="ui blue header">Time Out 2</label>
                         <input type="time" name="friTimeOut2" value="{{ $timecard->friTimeOut2 }}" />
                       </div>
                     </div>
@@ -439,7 +456,7 @@
               <div class="content">
                 <div class="ui internally celled grid">
                   <div class="three wide column middle aligned center aligned">
-                    <h1 class="ui blue header">SAT</h1>
+                    <h1 class="ui yellow header">SAT</h1>
                     <p class="text">
                       {{ $timecard->dates[6] }}
                     </p>
@@ -447,21 +464,21 @@
                   <div class="nine wide column">
                     <div class="two fields">
                       <div class="field">
-                        <label>Time In 1</label>
+                        <label class="ui blue header">Time In 1</label>
                         <input type="time" name="satTimeIn1" value="{{ $timecard->satTimeIn1}}" />
                       </div>
                       <div class="field">
-                        <label>Time Out 1</label>
+                        <label class="ui blue header">Time Out 1</label>
                         <input type="time" name="satTimeOut1" value="{{ $timecard->satTimeOut1 }}"/>
                       </div>
                     </div>
                     <div class="two fields">
                       <div class="field">
-                        <label>Time In 2</label>
+                        <label class="ui blue header">Time In 2</label>
                         <input type="time" name="satTimeIn2" value="{{ $timecard->satTimeIn2 }}" />
                       </div>
                       <div class="field">
-                        <label>Time Out 2</label>
+                        <label class="ui blue header">Time Out 2</label>
                         <input type="time" name="satTimeOut2" value="{{ $timecard->satTimeOut2 }}" />
                       </div>
                     </div>

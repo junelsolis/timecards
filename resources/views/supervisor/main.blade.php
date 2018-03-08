@@ -69,7 +69,7 @@
                     <strong>Grade</strong> {{ strtoupper($item->grade) }}<br />
                     <strong>Hours</strong> {{ $item->hours }}h<br />
                     <strong>Estimate</strong> Ksh{{ $item->estimate }}<br /><br /><br />
-                    <a class="mini ui green basic button" href="/supervisor/timecards/edit?id={{ $item->id }}">Edit</a>
+                    <a class="mini ui blue basic button" href="/supervisor/timecards/edit?id={{ $item->id }}">Edit</a>
                     <a class="mini ui orange button" href="/supervisor/timecards/sign?id={{ $item->id }}">Sign</a>
                   </div>
                   <div class="twelve wide column middle aligned">
@@ -83,22 +83,22 @@
                       </p>
                       <div class="two fields">
                         <div class="field">
-                          <label>Time In</label>
+                          <label class="ui blue header">Time In</label>
                           <input type="time" name="in1" value="<?php echo $item->{$in1}; ?>" />
                         </div>
                         <div class="field">
-                          <label>Time Out</label>
+                          <label class="ui blue header">Time Out</label>
                           <input type="time" name="out1" value="<?php echo $item->{$out1}; ?>"/>
                         </div>
                       </div>
                       <br />
                       <div class="two fields">
                         <div class="field">
-                          <label>Time In</label>
+                          <label class="ui blue header">Time In</label>
                           <input type="time" name="in2" value="<?php echo $item->{$in2}; ?>"/>
                         </div>
                         <div class="field">
-                          <label>Time Out</label>
+                          <label class="ui blue header">Time Out</label>
                           <input type="time" name="out2" value="<?php echo $item->{$out2}; ?>"/>
                         </div>
                       </div>
