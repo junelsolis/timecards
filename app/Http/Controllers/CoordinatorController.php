@@ -1000,7 +1000,6 @@ class CoordinatorController extends Controller
         'startDate' => 'date|required',
       ]);
 
-      // additional validation
 
       // check startDate is a sunday
       $start = date('D', strtotime($request['startDate']));
@@ -1012,24 +1011,21 @@ class CoordinatorController extends Controller
       $start = strtotime($request['startDate']);
       $end = strtotime($request['endDate'] . '+6 days');
 
-      if ($end <= $start) {
-        return back()->with('error', 'End date must not be before start date.');
-      }
-
       // if all validation passed, continue
-      $startDate = $request['startDate'];
-      $endDate = $request['endDate'];
+      $startDate = date('Y-m-d', $start);
+      $endDate = date('Y-m-d', $end);
 
       // get all workers
       $workers = DB::table('workers')->orderBy('lastname')->get();
+      $workerDepts = DB::table('worker_depts')->get();
 
       // foreach worker, get all dept_ids
       foreach ($workers as $worker) {
-        $dept_ids = DB::table('worker_depts')->where('worker_id', $worker->id)->pluck('dept_id');
+        $deptIds = $workerDepts->where('worker_id', $worker->id)->pluck('dept_id');
 
         // for each id, check if timecard alread exists
         // if not exists, create new timecard
-        foreach ($dept_ids as $id) {
+        foreach ($deptIds as $id) {
           $check = DB::table('timecards')
             ->where('worker_id', $worker->id)
             ->where('dept_id', $id)
