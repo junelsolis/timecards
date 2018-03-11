@@ -676,6 +676,7 @@ class CoordinatorController extends Controller
       foreach ($periods as $period) {
         $cards = $this->getPeriodTimecards($period, $timecards);
 
+
         // total timecards
         $period->totalTimecards = $cards->count();
         // unsigned timecards
@@ -683,7 +684,7 @@ class CoordinatorController extends Controller
         // submitted timecards
         $period->submittedTimecards = $cards->where('signed', 1)->where('paid', 0)->count();
         // remaining timecards
-        $period->remainingTimecards = $cards->count() - $cards->where('signed', 0)->count();
+        $period->remainingTimecards = ($cards->count()) - ($cards->where('signed', 1)->where('paid',0)->count());
 
         // total payment
         $period->totalPayment = number_format($cards->sum('pay'));
@@ -693,11 +694,11 @@ class CoordinatorController extends Controller
         $endDate = strtotime($period->endDate);
 
         $period->dateRange = date('d M', $startDate) . ' - ' . date('d M', $endDate);
+
       }
 
       $unpaid = $periods->where('paid', 0);
       $paid = $periods->where('paid', 1);
-
 
       return view('/coordinator/paymentsPay')
         ->with('unpaid', $unpaid)
