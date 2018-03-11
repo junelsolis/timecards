@@ -616,7 +616,7 @@ class SupervisorController extends Controller
         ]);
 
 
-      return redirect('/supervisor/')->with('msg', 'Timecard successfully updated.');
+      return redirect('/supervisor')->with('msg', 'Timecard successfully updated.');
 
     }
     public function showTimecardSign(Request $request) {
@@ -888,7 +888,7 @@ class SupervisorController extends Controller
         // pay estimate
         $factor = $payscale->where('grade', $card->grade)->first();
         $estimate = $card->hours * $factor->pay;
-        $card->estimate = $estimate;
+        $card->estimate = round($estimate);
       }
 
       return $items;
@@ -980,14 +980,14 @@ class SupervisorController extends Controller
       $timecard = DB::table('timecards')->where('id', $id)->first();
 
       // finalize pay calculation
-      $factor = $payscale->where('grade', $timecard->grade)->pluck('pay');
+      $factor = $payscale->where('grade', $timecard->grade)->first();
       $total = $timecard->hours + $timecard->contract;
       $total = round($total, 2);
-      $pay = $total * $factor;
+      $pay = $total * $factor->pay;
 
       DB::table('timecards')->where('id', $id)
         ->update([
-          'total' => $total,
+          'hours' => $total,
           'pay' => $pay,
           'signed' => true
         ]);

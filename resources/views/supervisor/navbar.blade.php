@@ -31,20 +31,25 @@
   <div class="item">
     <div class="header">Workers</div>
     <div class="menu">
-      <a class="item" href="/coordinator/worker/edit">View</a>
+      <a class="item" href="#">View</a>
       <a class="item">Attendance</a>
     </div>
   </div>
   <div class="item">
     <div class="header">Departments</div>
     <div class="menu">
-      <a class="item" href="/coordinator/departments">Departments</a>
+      <a class="item" href="#">Departments</a>
     </div>
   </div>
   <div class="item">
     <div class="header">Support</div>
     <div class="menu">
       <a class="item">Send Email</a>
+    </div>
+  </div>
+  <div class="item">
+    <div class="header">
+      <a href="/logout">Logout</a>
     </div>
   </div>
   <div class="item">
