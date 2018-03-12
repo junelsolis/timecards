@@ -211,36 +211,42 @@
             @endforeach
           </div>
           @endif
+
+
+
           @if ($workers)
           <h3 class="ui dividing header">Workers</h3>
-          <div class="ui three cards">
-            @foreach ($workers as $worker)
-            <div class="ui card">
-              <div class="image">
+          <div class="ui four stackable cards">
+          @foreach ($workers as $worker)
+          <div class="ui small card">
+              <!-- <div class="image">
                 <img src="{{ asset('/images/user.png')}}" />
+              </div> -->
+              <div class="image center aligned" style="padding: 8%;">
+                <i class="massive user outline icon"></i>
               </div>
-              <div class="content">
-                <div class="header">
-                  {{ $worker->fullname }}
-                </div>
-                <div class="meta">
-                  @foreach($worker->departmentNames as $name)
-                    {{ $name }}<br />
-                  @endforeach
-                </div>
+            <div class="content">
+              <div class="header">
+                {{ $worker->fullname }}
               </div>
-              <div class="extra content">
-                <a>
-                  <i class="address card icon"></i>
-                  {{ $worker->totalTimecards }}&nbsp;Timecards
-                </a><br />
-                <a>
-                  <i class="clipboard outline icon"></i>
-                  Attendance
-                </a>
+              <div class="meta">
+                @foreach($worker->departmentNames as $name)
+                  {{ $name }}<br />
+                @endforeach
               </div>
             </div>
-            @endforeach
+            <div class="extra content">
+              <a>
+                <i class="address card icon"></i>
+                {{ $worker->totalTimecards }}&nbsp;Timecards
+              </a><br />
+              <a>
+                <i class="clipboard outline icon"></i>
+                Attendance
+              </a>
+            </div>
+          </div>
+          @endforeach
           </div>
           @endif
         </div>
