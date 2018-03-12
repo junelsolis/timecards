@@ -803,7 +803,7 @@ class CoordinatorController extends Controller
       // add associated timecards
       $timecards = $this->getPeriodTimecards($period, $allTimecards);
 
-      // add worker fullname to each timecard
+      // add worker fullname and date string to each timecard
       foreach ($timecards as $card) {
         $worker = $workers->where('id', $card->worker_id)->first();
 
@@ -811,6 +811,11 @@ class CoordinatorController extends Controller
         $lastname = $worker->lastname;
 
         $card->fullname = $firstname . ' ' . $lastname;
+
+        $startDate = date('d M', strtotime($card->startDate));
+        $endDate = date('d M', strtotime($card->endDate));
+
+        $card->dateRange = $startDate . ' - ' . $endDate;
       }
 
       // add date range string
@@ -830,6 +835,12 @@ class CoordinatorController extends Controller
         $item->timecards = $timecards->where('dept_id', $item->id)->where('signed', 0);
       }
 
+      // remove departments with no unsigned timecards
+      foreach ($period->departments as $key => $department) {
+        if ($department->timecards->count() == 0) {
+          $departments->forget($key);
+        }
+      }
 
       return view('/coordinator/paymentsPaySelectedDetails')
         ->with('period', $period);
