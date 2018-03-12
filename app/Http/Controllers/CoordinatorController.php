@@ -782,89 +782,66 @@ class CoordinatorController extends Controller
 
 
     }
-    public function showPaySelectedUnsigned(Request $request) {
-      $check = $this->checkLoggedIn();
-      if ($check == true) {} else { return redirect('/'); }
-
-      // this function retrieves all unsigned timecards for the specified payment period
-      $timecards = DB::table('timecards')->where('signed', 0)->where('paid',0)
-        ->select('id', 'worker_id', 'dept_id', 'startDate', 'endDate', 'hours', 'grade', 'pay')
-        ->get();
-
-
-      $start = strtotime($request['startDate']);
-      $end = strtotime($request['endDate']);
-
-      // check for session data if exists
-      if ($request->session()->exists('startDate')) {
-        $start = strtotime($request->session()->get('startDate'));
-      }
-
-      if ($request->session()->exists('endDate')) {
-        $end = strtotime($request->session()->get('endDate'));
-      }
-
-      foreach ($timecards as $index => $i) {
-        $cardStart = strtotime($i->startDate);
-        $cardEnd = strtotime($i->endDate);
-
-        if ($cardStart >= $start && $cardEnd <= $end) {}
-        else {
-          $timecards->forget($index);
-        }
-      }
-
-      // append worker name and department name to each timecard
-      $workers = DB::table('workers')->get();
-      $departments = DB::table('departments')->get();
-
-      foreach ($timecards as $i) {
-        $worker_id = $i->worker_id;
-        $worker = $workers->where('id', $worker_id)->first();
-
-        $i->firstname = $worker->firstname;
-        $i->lastname = $worker->lastname;
-
-        $dept_id = $i->dept_id;
-        $department = $departments->where('id', $dept_id)->first();
-
-        $i->department = $department->name;
-      }
-
-      // date range string
-      $range = date('d M', $start) . ' - ' . date('d M', $end);
-
-      return view('/coordinator/paymentsPaySelectedUnsigned')
-        ->with('timecards', $timecards)
-        ->with('range', $range)
-        ->with('startDate', $request['startDate'])
-        ->with('endDate', $request['endDate']);
-
-    }
-    public function paySelectedUnsignedSign(Request $request) {
+    public function showPaySelectedDetails(Request $request){
       $check = $this->checkLoggedIn();
       if ($check == true) {} else { return redirect('/'); }
 
       $request->validate([
-        'id' => 'required',
-        'startDate' => 'date|required',
-        'endDate' => 'date|required'
+        'id' => 'required|integer'
       ]);
 
-      // get id number from request
+
+      // get payment period
       $id = $request['id'];
+      $period = DB::table('payment_periods')->where('id', $id)->first();
 
-      $startDate = $request['startDate'];
-      $endDate = $request['endDate'];
+      // all workers
+      $workers = DB::table('workers')->get();
+      // all timecards
+      $allTimecards = DB::table('timecards')->get();
 
-      // mark timecard with matching id number as signed
-      DB::table('timecards')->where('id', $id)->update(['signed' => 1 ]);
+      // add associated timecards
+      $timecards = $this->getPeriodTimecards($period, $allTimecards);
 
-      // redirect
-      return redirect('/coordinator/payments/pay/selected/unsigned?startDate='.$startDate.'&endDate='.$endDate);
+      // add worker fullname to each timecard
+      foreach ($timecards as $card) {
+        $worker = $workers->where('id', $card->worker_id)->first();
 
+        $firstname = $worker->firstname;
+        $lastname = $worker->lastname;
+
+        $card->fullname = $firstname . ' ' . $lastname;
+      }
+
+      // add date range string
+      $startDate = date('d M', strtotime($period->startDate));
+      $endDate = date('d M', strtotime($period->endDate));
+      $year = date('Y', strtotime($period->endDate));
+
+      $period->dateRange = $startDate . ' - ' . $endDate . ' ' . $year;
+
+      // add all departments
+      $departments = DB::table('departments')->orderBy('name', 'asc')->get();
+      $period->departments = $departments;
+
+      // add unsigned timecards to each department
+      foreach ($period->departments as $item) {
+
+        $item->timecards = $timecards->where('dept_id', $item->id)->where('signed', 0);
+      }
+
+
+      return view('/coordinator/paymentsPaySelectedDetails')
+        ->with('period', $period);
     }
-    public function paySelectedUnsignedRemind(Request $request) {}
+    public function showPaySelectedDetailsUnsignedByDepartment() {
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
+
+      $departments = $request['departments'];
+
+      return view('/coordinator/paymentsPaySelectedDetailsUnsignedByDepartment')->with('period', $period);
+    }
     public function showPayscale() {
       $check = $this->checkLoggedIn();
       if ($check == true) {} else { return redirect('/'); }

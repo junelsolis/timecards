@@ -64,7 +64,7 @@
                   href="/coordinator/payments/pay/selected?id={{ $item->id }}">
                   Pay
                 </a>
-                <a class="ui tiny basic yellow button">Details</a>
+                <a class="ui tiny basic yellow button" href="/coordinator/payments/pay/selected/details?id={{ $item->id }}">Details</a>
               </div>
             </div>
             @endforeach
