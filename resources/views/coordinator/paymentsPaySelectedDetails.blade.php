@@ -77,6 +77,7 @@
               <table class="ui very compact table">
                 <thead>
                   <tr>
+                    <th>Timecard #</th>
                     <th>Worker</th>
                     <th>Date</th>
                     <th>Total Hours</th>
@@ -88,6 +89,7 @@
                 <tbody>
                   @foreach ($department->timecards as $timecard)
                   <tr>
+                    <td>{{ $timecard->id }}</td>
                     <td>{{ $timecard->fullname }}</td>
                     <td>{{ $timecard->dateRange }}</td>
                     <td>{{ $timecard->hours }}</td>
