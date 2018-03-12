@@ -211,37 +211,66 @@
             @endforeach
           </div>
           @endif
+
+
+
           @if ($workers)
-          <h3 class="ui dividing header">Workers</h3>
-          <div class="ui three cards">
-            @foreach ($workers as $worker)
-            <div class="ui card">
-              <div class="image">
-                <img src="{{ asset('/images/user.png')}}" />
-              </div>
-              <div class="content">
-                <div class="header">
-                  {{ $worker->fullname }}
+          <h2 class="ui dividing header">Workers</h2>
+          <div class="ui two column stackable grid">
+            <div class="ui column">
+              @foreach ($workers[0] as $worker)
+              <div class="ui list">
+                <div class="item">
+                  <i class="user icon"></i>
+                  <div class="content">
+                    <h5 class="ui blue header">{{ $worker->fullname }}</h5>
+                  </div>
                 </div>
-                <div class="meta">
-                  @foreach($worker->departmentNames as $name)
-                    {{ $name }}<br />
-                  @endforeach
+                <div class="item">
+                  <i class="building outline icon"></i>
+                  <div class="content">
+                    @foreach ($worker->departmentNames as $item)
+                    {{ $item }}
+                    @endforeach
+                  </div>
                 </div>
-              </div>
-              <div class="extra content">
-                <a>
-                  <i class="address card icon"></i>
-                  {{ $worker->totalTimecards }}&nbsp;Timecards
-                </a><br />
-                <a>
+                <div class="item">
                   <i class="clipboard outline icon"></i>
-                  Attendance
-                </a>
+                  <div class="content">
+                    {{ $worker->totalTimecards }} Timecards
+                  </div>
+                </div>
               </div>
+              @endforeach
             </div>
-            @endforeach
+            <div class="ui column">
+              @foreach ($workers[1] as $worker)
+              <div class="ui list">
+                <div class="item">
+                  <i class="user icon"></i>
+                  <div class="content">
+                    <h5 class="ui blue header">{{ $worker->fullname }}</h5>
+                  </div>
+                </div>
+                <div class="item">
+                  <i class="building outline icon"></i>
+                  <div class="content">
+                    @foreach ($worker->departmentNames as $item)
+                    {{ $item }}
+                    @endforeach
+                  </div>
+                </div>
+                <div class="item">
+                  <i class="clipboard outline icon"></i>
+                  <div class="content">
+                    {{ $worker->totalTimecards }} Timecards
+                  </div>
+                </div>
+              </div>
+              @endforeach
+            </div>
           </div>
+
           @endif
         </div>
       </div>

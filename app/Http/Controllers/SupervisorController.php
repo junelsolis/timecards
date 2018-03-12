@@ -21,12 +21,13 @@ class SupervisorController extends Controller
       // get workers
       $workers = $this->getWorkers();
       $sortedWorkers = $workers->sortBy('lastname');
+      $splitWorkers = $sortedWorkers->split(2);
 
       // additional info for workers
       return view('/supervisor/main')
         ->with('activeTimecards', $sorted)
         ->with('unsignedTimecards', $unsignedSorted)
-        ->with('workers', $sortedWorkers);
+        ->with('workers', $splitWorkers);
 
     }
 
@@ -102,7 +103,7 @@ class SupervisorController extends Controller
         );
 
       return redirect('/supervisor')->with('msg', 'Timecard successfully edited.');
-      
+
     }
     public function showTimecardEdit(Request $request) {
       $check = $this->checkLoggedIn();
