@@ -78,6 +78,7 @@
                 <thead>
                   <tr>
                     <th>Worker</th>
+                    <th>Date</th>
                     <th>Total Hours</th>
                     <th>Grade</th>
                     <th>Pay</th>
@@ -88,9 +89,10 @@
                   @foreach ($department->timecards as $timecard)
                   <tr>
                     <td>{{ $timecard->fullname }}</td>
+                    <td>{{ $timecard->dateRange }}</td>
                     <td>{{ $timecard->hours }}</td>
                     <td>{{ strtoupper($timecard->grade) }}</td>
-                    <td>{{ $timecard->pay }}</td>
+                    <td>Ksh&nbsp;{{ $timecard->pay }}</td>
                   </tr>
                   @endforeach
                 </tbody>
