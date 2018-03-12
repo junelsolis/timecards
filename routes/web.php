@@ -39,7 +39,6 @@ Route::get('/coordinator/payment-periods/report', 'CoordinatorController@showPay
 Route::get('/coordinator/payments/pay', 'CoordinatorController@showPay');
 Route::get('/coordinator/payments/pay/selected', 'CoordinatorController@showPaySelected');
 Route::get('/coordinator/payments/pay/selected/details', 'CoordinatorController@showPaySelectedDetails');
-Route::get('/coordinator/payments/pay/selected/unsignedByDepartment', 'CoordinatorController@showPaySelectedDetailsUnsignedByDepartment');
 
 
 Route::get('/coordinator/payments/payscale', 'CoordinatorController@showPayscale');

@@ -845,14 +845,6 @@ class CoordinatorController extends Controller
       return view('/coordinator/paymentsPaySelectedDetails')
         ->with('period', $period);
     }
-    public function showPaySelectedDetailsUnsignedByDepartment() {
-      $check = $this->checkLoggedIn();
-      if ($check == true) {} else { return redirect('/'); }
-
-      $departments = $request['departments'];
-
-      return view('/coordinator/paymentsPaySelectedDetailsUnsignedByDepartment')->with('period', $period);
-    }
     public function showPayscale() {
       $check = $this->checkLoggedIn();
       if ($check == true) {} else { return redirect('/'); }
