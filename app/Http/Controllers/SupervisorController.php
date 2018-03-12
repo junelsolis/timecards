@@ -101,6 +101,8 @@ class SupervisorController extends Controller
           ]
         );
 
+      return redirect('/supervisor')->with('msg', 'Timecard successfully edited.');
+      
     }
     public function showTimecardEdit(Request $request) {
       $check = $this->checkLoggedIn();
@@ -150,7 +152,7 @@ class SupervisorController extends Controller
       $request->validate([
         'id' => 'required|integer',
         'grade' => 'required|string|max:1',
-        'contract' => 'nullable|numeric',
+        'contract' => 'required|numeric',
 
         'sunTimeIn1' => 'nullable|string',
         'sunTimeOut1' => 'nullable|string',
