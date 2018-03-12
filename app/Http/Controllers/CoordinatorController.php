@@ -695,6 +695,13 @@ class CoordinatorController extends Controller
 
         $period->dateRange = date('d M', $startDate) . ' - ' . date('d M', $endDate);
 
+        // if all timecards paid, send variable to enable payment
+        if ($period->unsignedTimecards == 0) {
+          $period->complete = true;
+        } else {
+          $period->complete = false;
+        }
+
       }
 
       $unpaid = $periods->where('paid', 0);
@@ -704,6 +711,7 @@ class CoordinatorController extends Controller
         ->with('unpaid', $unpaid)
         ->with('paid', $paid);
 
+
     }
     public function showPaySelected(Request $request) {
       $check = $this->checkLoggedIn();
@@ -711,51 +719,66 @@ class CoordinatorController extends Controller
 
       // validate request
       $request->validate([
-        'startDate' => 'required',
-        'endDate' => 'required'
+        'id' => 'required|integer'
       ]);
 
-      // copy request to local vars
-      $startDate = $request['startDate'];
-      $endDate = $request['endDate'];
 
+      // retrieve payment period
+      $id = $request['id'];
+      $period = DB::table('payment_periods')->where('id', $id)->first();
 
-      // get all timecards
-      $timecards = DB::table('timecards')->select('id', 'startDate', 'endDate', 'signed')->get();
+      // set date range string
+      $startDate = date('d M', strtotime($period->startDate));
+      $endDate = date('d M', strtotime($period->endDate));
+      $year = date('Y', strtotime($period->endDate));
 
+      $period->dateRange = $startDate . ' - ' . $endDate;
+      $period->year = $year;
 
-      $start = strtotime($startDate);
-      $end = strtotime($endDate);
+      // calculate total payment
+      $timecards = DB::table('timecards')->get();
 
-      $unsigned = 0;
+      $cards = $this->getPeriodTimecards($period, $timecards);
 
-      // remove timecards from collection not matching the date range
-      foreach ($timecards as $index => $i) {
-        $cardStart = strtotime($i->startDate);
-        $cardEnd = strtotime($i->endDate);
-
-        if ($cardStart >= $start && $cardEnd <= $end) {}
-        else {
-          $timecards->forget($index);
-        }
-
-      }
-
-      // increment for every unsigned timecard
-      foreach($timecards as $i) {
-        if ($i->signed == false) {
-          $unsigned++;
-        }
-      }
-
-      // date range string
-      $range = date('d M', $start) . ' - ' . date('d M', $end);
+      $period->totalPayment = number_format($cards->sum('pay'));
 
       return view('/coordinator/paymentsPaySelected')
-        ->with('unsigned', $unsigned)
-        ->with('range', $range)
-        ->with('startDate', $startDate)
-        ->with('endDate', $endDate);
+        ->with('period', $period);
+
+
+    }
+    public function paySelected(Request $request) {
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
+
+      $request->validate([
+        'id' => 'required|integer'
+      ]);
+
+      // retrieve period
+      $id = $request['id'];
+      $period = DB::table('payment_periods')->where('id', $id)->first();
+
+      // retrieve associated timecards
+      $timecards = DB::table('timecards')->get();
+      $cards = $this->getPeriodTimecards($period, $timecards);
+
+      // check to make sure all timecards are signed
+      // return to main screen if not
+      $unsigned = $cards->where('signed', 0)->count();
+      if ($unsigned >= 0) {
+        return redirect('/coordinator');
+      }
+
+      foreach ($cards as $card) {
+        // update database entry
+        DB::table('timecards')->where('id', $card->id)->update([
+          'signed' => 1
+        ]);
+      }
+
+      return redirect('/coordinator/payment-periods/report')->with('id', $id);
+
 
 
     }
@@ -1567,4 +1590,5 @@ class CoordinatorController extends Controller
 
       return $cards;
     }
+
 }
