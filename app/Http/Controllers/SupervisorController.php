@@ -150,7 +150,7 @@ class SupervisorController extends Controller
       $request->validate([
         'id' => 'required|integer',
         'grade' => 'required|string|max:1',
-        'contract' => 'required|numeric',
+        'contract' => 'nullable|numeric',
 
         'sunTimeIn1' => 'nullable|string',
         'sunTimeOut1' => 'nullable|string',
