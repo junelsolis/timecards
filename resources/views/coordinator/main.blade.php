@@ -16,14 +16,11 @@
       <div class="ui grid">
         <div class="ten wide column">
 
-            <h1 class="header">Header</h1>
-            <div class="text">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur auctor, tellus eget imperdiet sodales, eros nisi blandit leo, condimentum commodo neque ligula vitae metus. Vivamus et eros sit amet erat faucibus dapibus ut sed nulla. Quisque erat mauris, consequat ac velit nec, aliquam dictum metus. Nulla facilisi. Sed ullamcorper odio a egestas viverra. Maecenas imperdiet dapibus augue, finibus bibendum augue. Vivamus molestie semper imperdiet. Nunc ac nisi sed massa auctor lacinia.
-            </div>
-            <h2 class="header">subheader</h2>
-            <div class="text">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur auctor, tellus eget imperdiet sodales, eros nisi blandit leo, condimentum commodo neque ligula vitae metus. Vivamus et eros sit amet erat faucibus dapibus ut sed nulla. Quisque erat mauris, consequat ac velit nec, aliquam dictum metus. Nulla facilisi. Sed ullamcorper odio a egestas viverra. Maecenas imperdiet dapibus augue, finibus bibendum augue. Vivamus molestie semper imperdiet. Nunc ac nisi sed massa auctor lacinia.
-            </div>
+            <h1 class="ui dividing header">Timecards</h1>
+            <h1 class="ui dividing header">Payments</h1>
+            <h1 class="ui dividing header">Workers</h1>
+            <h1 class="ui dividing header">Supervisors</h1>
+            <h1 class="ui dividing header">Departments</h1>
         </div>
       </div>
     </div>

@@ -60,7 +60,10 @@
                 </div>
               </div>
               <div class="extra content">
-                <a class="ui tiny blue button">Pay</a>
+                <a class="ui tiny blue button <?php if ($item->complete == false) { echo "disabled"; }?>"
+                  href="/coordinator/payments/pay/selected?id={{ $item->id }}">
+                  Pay
+                </a>
                 <a class="ui tiny basic yellow button">Details</a>
               </div>
             </div>
@@ -93,7 +96,7 @@
             @endforeach
           </div>
           <div class="ui divider">
-            
+
           </div>
           @endif
         </div>
