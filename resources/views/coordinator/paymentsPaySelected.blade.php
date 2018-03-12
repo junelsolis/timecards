@@ -3,62 +3,89 @@
   <head>
     <title>Coordinator | Timecards</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css')}}">
-    <link href="/css/pages.css" rel='stylesheet' />
-    <link href="https://fonts.googleapis.com/css?family=Raleway:200" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ asset('semantic/dist/semantic.min.css')}}">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+      integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+      crossorigin="anonymous"></script>
+    <script src="{{ asset('semantic/dist/semantic.min.js')}}"></script>
   </head>
-  @include('/coordinator/navbar')
   <body>
-    <div class="container">
-      <br />
-      @if (session('error'))
-      <div class="alert alert-warning" role="alert">
-        {{ session('error') }}
-      </div>
-      @endif
-      @if (session('msg'))
-      <div class="alert alert-warning" role="alert">
-        {{ session('msg') }}
-      </div>
-      @endif
-      <div class="row">
-        <div class="col-sm-12 text-center">
-          <h3 style="text-center"><strong>Confirm Payment</strong></h3><br />
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-12">
-          <div class="card" style="background-color: white; margin-top: 3%;">
-            <div class="card-body">
-              <h4 class="card-title text-center" style="font-family: sans-serif;">{{ $range }}</h4>
-              @if ($unsigned !== 0)
-              <h4 class="card-title text-center" style='font-family: sans-serif; color: orange;'>There are {{ $unsigned }} unsigned timecards</h4>
-              <p class="card-text text-center">Cannot continue payment. Please make sure all timecards for the selected payment period have been signed and submitted by the work supervisors.</p>
-              <div class="text-center">
-                <div class="btn-group">
-                  <a href="/coordinator/payments/pay" class="btn btn-primary">OK</a>
-                  <a href="/coordinator/payments/pay/selected/unsigned<?php echo "?startDate=". $startDate . "&endDate=" . $endDate;?>" class="btn btn-outline-warning">Show Timecards</a>
+    @include('/coordinator/navbar')
+    <div class="pusher" style="margin: 2%;">
+      <div class="ui grid">
+        <div class="ten wide column">
+          @if (session('msg'))
+          <div class="ui yellow message">
+            <i class="close icon"></i>
+            <div class="header">
+              Success.
+            </div>
+            {{ session('msg') }}
+          </div>
+          @endif
+
+
+          <h1 class="ui dividing header">Confirm Payment</h1>
+          <p class="text">
+            Pressing 'Confirm' will mark all timecards included in the period between {{ $period->dateRange }} 2018 as paid. You will then be able to generate and print a payment report for all workers.
+          </p>
+          <div class="ui internally celled grid">
+            <div class="five wide column middle aligned center aligned">
+              <div class="ui tiny statistic">
+                <div class="value">
+                  {{ $period->dateRange }}
+                </div>
+                <div class="label">
+                  Date
                 </div>
               </div>
             </div>
-              @endif
+            <div class="three wide column middle aligned center aligned">
+              <div class="ui small statistic">
+                <div class="value">
+                  {{ $period->year }}
+                </div>
+                <div class="label">
+                  Year
+                </div>
+              </div>
+            </div>
+            <div class="eight wide column middle aligned center aligned">
+              <div class="ui yellow small statistic">
+                <div class="value">
+                  Ksh&nbsp;{{ $period->totalPayment}}
+                </div>
+                <div class="label">
+                  Total Payment
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ui divider">
+            <br />
+            <div class="ui buttons">
+              <a href="/coordinator/payments/pay/selected?id={{ $period->id }}" class="ui blue button">Confirm</a>
+              <div class="or">
 
+              </div>
+              <a href="/coordinator/payments/pay" class="ui grey button">Cancel</a>
             </div>
           </div>
         </div>
       </div>
-
     </div>
-    @include('/coordinator/footer')
+    <div class="ui">
+      <div class="ui grid" style="margin: 1%;">
+          <div class="twelve wide column">
 
-
-
-
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="{{ asset('js/jquery-3.2.1.slim.min.js') }}"></script>
-    <script src="{{ asset('js/popper.min.js') }}"></script>
-    <script src="{{ asset('js/bootstrap.min.js')}}"></script>
+          </div>
+      </div>
+    </div>
+    <script>
+      $('#toggle').click(function(){
+        $('.ui.sidebar').sidebar('toggle');
+      });
+    </script>
   </body>
 </html>
