@@ -38,9 +38,10 @@ Route::post('/coordinator/payment-periods/add', 'CoordinatorController@paymentPe
 Route::get('/coordinator/payment-periods/report', 'CoordinatorController@showPaymentPeriodsReport');
 Route::get('/coordinator/payments/pay', 'CoordinatorController@showPay');
 Route::get('/coordinator/payments/pay/selected', 'CoordinatorController@showPaySelected');
-Route::get('/coordinator/payments/pay/selected/unsigned', 'CoordinatorController@showPaySelectedUnsigned');
-Route::get('/coordinator/payments/pay/selected/unsigned/sign', 'CoordinatorController@paySelectedUnsignedSign');
-Route::get('/coordinator/payments/pay/selected/unsigned/remind', 'CoordinatorController@paySelectedUnsignedRemind');
+Route::get('/coordinator/payments/pay/selected/details', 'CoordinatorController@showPaySelectedDetails');
+Route::get('/coordinator/payments/pay/selected/unsignedByDepartment', 'CoordinatorController@showPaySelectedDetailsUnsignedByDepartment');
+
+
 Route::get('/coordinator/payments/payscale', 'CoordinatorController@showPayscale');
 Route::post('/coordinator/payments/payscale', 'CoordinatorController@setPayscale');
 
