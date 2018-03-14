@@ -1055,7 +1055,9 @@ class SupervisorController extends Controller
 
           $totalTimecards = $totalTimecards + $count;
 
-          $workerDepartments->push($dept->name);
+          if ($count != 0) {
+            $workerDepartments->push($dept->name);
+          }
         }
 
 
