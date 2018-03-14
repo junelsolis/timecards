@@ -41,7 +41,7 @@
             </div>
           </div>
           @endif
-          <h1 class="ui dividing header">
+          <h1 class="ui dividing header" id="top">
             Timecards this week
           </h1>
           @if (isset($activeTimecards))
@@ -79,7 +79,7 @@
                       <input type="hidden" name="day" value="{{ $day }}" />
                       <h3 class="ui yellow header">Quick Entry</h3>
                       <p class="text">
-                        Quick entry allows you to input work times for this day only.
+                        Quick entry allows you to input work times for <strong><em>today</em></strong>.
                       </p>
                       <div class="two fields">
                         <div class="field">
@@ -101,9 +101,6 @@
                           <label class="ui blue header">Time Out</label>
                           <input type="time" name="out2" value="<?php echo $item->{$out2}; ?>"/>
                         </div>
-                      </div>
-                      <div class='label'>
-                        Select One
                       </div>
                       <div class="two fluid fields">
                         <div class="field">
@@ -139,6 +136,8 @@
             </div>
             @endforeach
           </div>
+          <br />
+          <a href="#top"><i class="angle double up icon"></i>Top</a>
           @endif
 
 
@@ -229,9 +228,11 @@
                 <div class="item">
                   <i class="building outline icon"></i>
                   <div class="content">
-                    @foreach ($worker->departmentNames as $item)
-                    {{ $item }}
-                    @endforeach
+                    <span style="color: orange;">
+                      @foreach ($worker->departmentNames as $item)
+                      {{ $item }}
+                      @endforeach
+                    </span>
                   </div>
                 </div>
                 <div class="item">
@@ -241,6 +242,7 @@
                   </div>
                 </div>
               </div>
+              <div class="ui divider"></div>
               @endforeach
             </div>
             <div class="ui column">
@@ -255,9 +257,11 @@
                 <div class="item">
                   <i class="building outline icon"></i>
                   <div class="content">
-                    @foreach ($worker->departmentNames as $item)
-                    {{ $item }}
-                    @endforeach
+                    <span style="color: orange;">
+                      @foreach ($worker->departmentNames as $item)
+                      {{ $item }}
+                      @endforeach
+                    </span>
                   </div>
                 </div>
                 <div class="item">
@@ -267,11 +271,13 @@
                   </div>
                 </div>
               </div>
+              <div class="ui divider"></div>
               @endforeach
             </div>
           </div>
-
+          <a href="#top"><i class="angle double up icon"></i>Top</a>
           @endif
+
         </div>
       </div>
     </div>
