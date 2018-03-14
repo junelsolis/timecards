@@ -102,9 +102,6 @@
                           <input type="time" name="out2" value="<?php echo $item->{$out2}; ?>"/>
                         </div>
                       </div>
-                      <div class='label'>
-                        Select One
-                      </div>
                       <div class="two fluid fields">
                         <div class="field">
                           <div class="ui checkbox">
@@ -230,7 +227,7 @@
                   <i class="building outline icon"></i>
                   <div class="content">
                     @foreach ($worker->departmentNames as $item)
-                    {{ $item }}
+                    {{ $item  }}
                     @endforeach
                   </div>
                 </div>
