@@ -88,7 +88,11 @@
           <div class="ui divider"></div>
           <div class="ui fluid column">
             <canvas id="totalHours"></canvas>
+            <a href="#top"><i class="angle double up icon"></i>Back to Top</a>
           </div><br /><br />
+
+
+
           <h2 class="ui blue header" id="attendance">Attendance</h2>
           <div class="ui divider"></div>
           <div class="ui internally celled grid">
@@ -113,6 +117,33 @@
               </div>
             </div>
           </div>
+          <a href="#top"><i class="angle double up icon"></i>Back to Top</a>
+          <br /><br />
+
+
+          @if ($workers->count() > 0)
+          <h2 class="ui blue header" id="workers">Workers</h2>
+          <div class="ui divider"></div>
+          <table class="ui compact table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Hours</th>
+                <th>Pay</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach ($workers as $worker)
+              <tr>
+                <td>{{ $worker->fullname }}</td>
+                <td>{{ $worker->totalHours }}</td>
+                <td>Ksh&nbsp;{{ $worker->totalPay }}</td>
+              </tr>
+              @endforeach
+            </tbody>
+          </table>
+          <a href="#top"><i class="angle double up icon"></i>Back to Top</a>
+          @endif
         </div>
       </div>
     </div>
