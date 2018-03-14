@@ -731,6 +731,151 @@ class SupervisorController extends Controller
         ->with('timecards', $sorted);
     }
 
+    public function showPeriodCurrent() {
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
+
+      // current period
+      $period = $this->getCurrentPeriod();
+      // timecards associated with current period
+      $timecards = $this->getPeriodTimecards($period);
+      // departments associated with supervisor
+      $departments = $this->getDepartments();
+
+      // payment graph data
+
+        // labels
+        $labels = collect();
+
+        $startDate = strtotime($period->startDate);
+        $endDate = strtotime($period->endDate . " 23:59:59");
+
+        $start = $startDate;
+
+        while ($start < $endDate) {
+          $string = date('d M', $start) . ' - ' . date('d M', strtotime('+6 days', $start));
+          $labels->push($string);
+
+          $start = strtotime('+7 days', $start);
+        }
+
+        $paymentGraph = collect();
+        $paymentGraph->labels = $labels;
+
+        // data
+        $data = collect();
+
+        $startDate = strtotime($period->startDate);
+        $endDate = strtotime($period->endDate . " 23:59:59");
+
+        $start = $startDate;
+
+        while ($start < $endDate) {
+
+          $cardStart = date('Y-m-d', $start);
+          $cardEnd = date('Y-m-d', strtotime('+6 days', strtotime($cardStart . ' 23:59:59')));
+
+          $total = 0;
+          foreach ($departments as $department) {
+            $sum = $timecards
+              ->where('dept_id', $department->id)
+              ->where('startDate', $cardStart)
+              ->where('endDate', $cardEnd)
+              ->sum('pay');
+            $total += $sum;
+          }
+
+          $data->push($total);
+
+          $start = strtotime('+7 days', $start);
+        }
+
+        $paymentGraph->data = $data;
+
+      // hours graph data
+
+        // labels
+        $labels = collect();
+
+        $startDate = strtotime($period->startDate);
+        $endDate = strtotime($period->endDate . " 23:59:59");
+
+        $start = $startDate;
+
+        while ($start < $endDate) {
+          $string = date('d M', $start) . ' - ' . date('d M', strtotime('+6 days', $start));
+          $labels->push($string);
+
+          $start = strtotime('+7 days', $start);
+        }
+
+        $hoursGraph = collect();
+        $hoursGraph->labels = $labels;
+
+        // data
+        $data = collect();
+
+        $startDate = strtotime($period->startDate);
+        $endDate = strtotime($period->endDate . " 23:59:59");
+
+        $start = $startDate;
+
+        while ($start < $endDate) {
+
+          $cardStart = date('Y-m-d', $start);
+          $cardEnd = date('Y-m-d', strtotime('+6 days', strtotime($cardStart . ' 23:59:59')));
+
+          $total = 0;
+          foreach ($departments as $department) {
+            $sum = $timecards
+              ->where('dept_id', $department->id)
+              ->where('startDate', $cardStart)
+              ->where('endDate', $cardEnd)
+              ->sum('hours');
+            $total += $sum;
+          }
+
+          $data->push($total);
+
+          $start = strtotime('+7 days', $start);
+        }
+
+        $hoursGraph->data = $data;
+
+      // total tardies and absences
+        $tardies = 0;
+        $absences = 0;
+        foreach ($timecards as $card) {
+          $tardies += $this->countTimecardTardies($card);
+          $absences += $this->countTimecardAbsences($card);
+        }
+
+        $period->totalTardies = $tardies;
+        $period->totalAbsences = $absences;
+
+      // total payment
+      $period->totalPayment = number_format($timecards->sum('pay'));
+
+      // total hours
+      $totalHours = $timecards->sum('hours');
+      $period->totalHours = round($totalHours);
+
+      // total timecards
+      $period->totalTimecards = $timecards->count();
+
+      // date range
+      $start = strtotime($period->startDate);
+      $end = strtotime($period->endDate);
+
+      $period->dateRange = date('d M', $start) . ' - ' . date('d M', $end) . ' ' . date('Y', $end);
+
+      return view('/supervisor/periodCurrent')
+        ->with('paymentGraph', $paymentGraph)
+        ->with('hoursGraph', $hoursGraph)
+        ->with('period', $period);
+    }
+    public function showPeriodHistory() {}
+
     private function checkLoggedIn() {
       $role = session('role');
 
@@ -962,10 +1107,10 @@ class SupervisorController extends Controller
           $card->dateRange = date('d M', strtotime($card->startDate)) . ' - ' . date('d M', strtotime($card->endDate));
 
           // count tardies
-          $card->tardies = $this->countTimecardTardies($card->id, $timecards);
+          $card->tardies = $this->countTimecardTardies($card);
 
           // count absences
-          $card->absences = $this->countTimecardAbsences($card->id, $timecards);
+          $card->absences = $this->countTimecardAbsences($card);
 
 
           $items->push($card);
@@ -1072,9 +1217,93 @@ class SupervisorController extends Controller
 
     }
 
-    private function countTimecardTardies($id, $timecards) {
-      // receives a timecard id and a collection of timecards and counts the number of tardies in that timecard
-      $timecard = $timecards->where('id', $id)->first();
+    // private function countTimecardTardies($id, $timecards) {
+    //   // receives a timecard id and a collection of timecards and counts the number of tardies in that timecard
+    //   $timecard = $timecards->where('id', $id)->first();
+    //
+    //   $count = 0;
+    //
+    //   if ($timecard->sunTardy == 1) { $count++; }
+    //   if ($timecard->monTardy == 1) { $count++; }
+    //   if ($timecard->tueTardy == 1) { $count++; }
+    //   if ($timecard->wedTardy == 1) { $count++; }
+    //   if ($timecard->thuTardy == 1) { $count++; }
+    //   if ($timecard->friTardy == 1) { $count++; }
+    //
+    //
+    //   return $count;
+    // }
+    // private function countTimecardAbsences($id, $timecards) {
+    //   // receives a timecard id and a collection of timecards and counts the number of absences in that timecard
+    //   $timecard = $timecards->where('id', $id)->first();
+    //
+    //   $count = 0;
+    //
+    //   if ($timecard->sunAbsent == 1) { $count++; }
+    //   if ($timecard->monAbsent == 1) { $count++; }
+    //   if ($timecard->tueAbsent == 1) { $count++; }
+    //   if ($timecard->wedAbsent == 1) { $count++; }
+    //   if ($timecard->thuAbsent == 1) { $count++; }
+    //   if ($timecard->friAbsent == 1) { $count++; }
+    //   if ($timecard->satAbsent == 1) { $count++; }
+    //
+    //   return $count;
+    // }
+
+    private function getCurrentPeriod(){
+      // this function returns the current payment period
+
+      // get current timestamp
+      $now = strtotime('now');
+
+      // all payment periods
+      $paymentPeriods = DB::table('payment_periods')->get();
+
+      foreach ($paymentPeriods as $index => $i) {
+        $startDate = strtotime($i->startDate);
+        $endDate = strtotime($i->endDate);
+
+        if ($now >= $startDate && $now <= $endDate) {}
+        else {
+          $paymentPeriods->forget($index);
+        }
+
+      }
+
+      $period = $paymentPeriods->first();
+
+      return $period;
+
+    }
+    private function getPeriodTimecards($period) {
+      // returns all timecards associated with supervisor's departments for the given payment period
+
+      $departments = $this->getDepartments();
+      $timecards = DB::table('timecards')->get();
+
+      $periodStart = strtotime($period->startDate);
+      $periodEnd = strtotime($period->endDate);
+
+      $items = collect();
+
+      foreach ($departments as $department) {
+        $cards = $timecards->where('dept_id', $department->id);
+
+        foreach ($cards as $card) {
+          $cardStart = strtotime($card->startDate);
+          $cardEnd = strtotime($card->endDate);
+
+          if ($cardStart >= $periodStart && $cardEnd <= $periodEnd) {
+            $items->push($card);
+          }
+
+        }
+      }
+
+      return $items;
+    }
+    private function countTimecardTardies($timecard) {
+      // takes a timecard and counts tardies;
 
       $count = 0;
 
@@ -1084,13 +1313,12 @@ class SupervisorController extends Controller
       if ($timecard->wedTardy == 1) { $count++; }
       if ($timecard->thuTardy == 1) { $count++; }
       if ($timecard->friTardy == 1) { $count++; }
-
+      if ($timecard->satTardy == 1) { $count++; }
 
       return $count;
     }
-    private function countTimecardAbsences($id, $timecards) {
-      // receives a timecard id and a collection of timecards and counts the number of absences in that timecard
-      $timecard = $timecards->where('id', $id)->first();
+    private function countTimecardAbsences($timecard) {
+      // takes a timecard and counts tardies;
 
       $count = 0;
 
@@ -1101,6 +1329,7 @@ class SupervisorController extends Controller
       if ($timecard->thuAbsent == 1) { $count++; }
       if ($timecard->friAbsent == 1) { $count++; }
       if ($timecard->satAbsent == 1) { $count++; }
+
 
       return $count;
     }

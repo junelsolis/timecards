@@ -66,6 +66,9 @@ Route::get('/supervisor/timecards/sign', 'SupervisorController@showTimecardSign'
 Route::post('/supervisor/timecards/sign', 'SupervisorController@timecardSign');
 Route::get('/supervisor/timecards/active', 'SupervisorController@showTimecardsActive');
 
+Route::get('/supervisor/payments/current', 'SupervisorController@showPeriodCurrent');
+Route::get('/supervisor/payments/history', 'SupervisorController@showPeriodHistory');
+
 // Email Routes
 Route::post('/coordinator/email/sendWorkerPasswordReset', 'EmailController@sendWorkerPasswordReset');
 Route::post('/coordinator/email/sendSupervisorPasswordReset', 'EmailController@sendSupervisorPasswordReset');
