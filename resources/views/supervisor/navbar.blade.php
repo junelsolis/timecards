@@ -22,7 +22,7 @@
       <a class="item" href="">View Submitted</a>
     </div>
   </div>
-  <div class="item">
+  <!-- <div class="item">
     <div class="header">Payments</div>
     <div class="menu">
 
@@ -34,13 +34,13 @@
       <a class="item" href="#">View</a>
       <a class="item">Attendance</a>
     </div>
-  </div>
-  <div class="item">
+  </div> -->
+  <!-- <div class="item">
     <div class="header">Departments</div>
     <div class="menu">
       <a class="item" href="#">Departments</a>
     </div>
-  </div>
+  </div> -->
   <div class="item">
     <div class="header">Support</div>
     <div class="menu">
