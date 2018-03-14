@@ -869,10 +869,24 @@ class SupervisorController extends Controller
 
       $period->dateRange = date('d M', $start) . ' - ' . date('d M', $end) . ' ' . date('Y', $end);
 
+      // worker summaries
+      $workers = $this->getWorkers();
+      foreach ($workers as $worker) {
+        $fullname = $worker->firstname . ' ' . $worker->lastname;
+        $worker->fullname = $fullname;
+
+        $worker->totalHours = $timecards->where('worker_id', $worker->id)->sum('hours');
+        $worker->totalPay = $timecards->where('worker_id', $worker->id)->sum('pay');
+      }
+
+
       return view('/supervisor/periodCurrent')
         ->with('paymentGraph', $paymentGraph)
         ->with('hoursGraph', $hoursGraph)
+        ->with('workers', $workers)
         ->with('period', $period);
+
+
     }
     public function showPeriodHistory() {}
 
@@ -1164,7 +1178,7 @@ class SupervisorController extends Controller
       // plus additional info
       $departments = $this->getDepartments();
       $workerDepts = DB::table('worker_depts')->get();
-      $workersTable = DB::table('workers')->select('id', 'firstname', 'lastname', 'email')->get();
+      $workersTable = DB::table('workers')->get();
       $timecardsTable = DB::table('timecards')->get();
 
       $items = collect();
@@ -1212,7 +1226,9 @@ class SupervisorController extends Controller
       }
 
 
-      return $items;
+      $sorted = $items->sortBy('lastname');
+
+      return $sorted;
 
 
     }
