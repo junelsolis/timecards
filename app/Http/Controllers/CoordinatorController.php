@@ -797,11 +797,20 @@ class CoordinatorController extends Controller
 
       // all workers
       $workers = DB::table('workers')->get();
+      // all supervisors
+      $supervisors = DB::table('supervisors')->get();
+      // supervisor departments
+      $supervisorDepts = DB::table('superv_depts')->get();
+      // all departments
+      $departments = DB::table('departments')->get();
       // all timecards
       $allTimecards = DB::table('timecards')->get();
 
       // add associated timecards
       $timecards = $this->getPeriodTimecards($period, $allTimecards);
+
+      // count unsigned timecards
+      $period->unsignedTimecards = $timecards->where('signed', 0)->count();
 
       // add worker fullname and date string to each timecard
       foreach ($timecards as $card) {
@@ -841,6 +850,39 @@ class CoordinatorController extends Controller
           $departments->forget($key);
         }
       }
+
+      // count unsigned departments for each timecard
+      $count = 0;
+      foreach ($period->departments as $item) {
+        $total = $timecards->where('dept_id', $item->id)->where('signed', 0)->count();
+
+        if ($total != 0) { $count++; }
+      }
+      $period->unsignedTimecardsDepartments = $count;
+
+      // count number of workers with unsigned timecards
+      $count = 0;
+      foreach ($workers as $worker) {
+        $total = $timecards->where('worker_id', $worker->id)->where('signed', 0)->count();
+
+        if ($total != 0) { $count++; }
+      }
+      $period->unsignedTimecardsWorkers = $count;
+
+      // count number of supervisors with unsigned timecards
+      $count = 0;
+      foreach ($supervisors as $supervisor) {
+        $depts = $supervisorDepts->where('superv_id', $supervisor->id);
+
+        $overallTotal = 0;
+        foreach ($depts as $item) {
+          $total = $timecards->where('dept_id', $item->dept_id)->count();
+          $overallTotal += $total;
+        }
+
+        if ($overallTotal != 0) { $count++; }
+      }
+      $period->unsignedTimecardsSupervisors = $count;
 
       return view('/coordinator/paymentsPaySelectedDetails')
         ->with('period', $period);

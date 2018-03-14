@@ -25,13 +25,13 @@
           </div>
           @endif
 
-          <h1 class="ui dividing header">{{ $period->dateRange }}</h1>
+          <h1 class="ui dividing header" id="top">{{ $period->dateRange }}</h1>
           <h2 class='ui blue header'>Unsigned Timecards</h2>
               <div class="ui internally celled grid">
                 <div class="four wide column">
                   <div class='ui statistic'>
                     <div class="value">
-                      208
+                      {{ $period->unsignedTimecards }}
                     </div>
                     <div class="label">
                       Unsigned
@@ -41,7 +41,7 @@
                 <div class="four wide column middle aligned">
                   <div class="ui yellow statistic">
                     <div class="value">
-                      8
+                      {{ $period->unsignedTimecardsDepartments }}
                     </div>
                     <div class="label">
                       Departments
@@ -51,7 +51,7 @@
                 <div class="four wide column middle aligned">
                   <div class="ui yellow statistic">
                     <div class="value">
-                      29
+                      {{ $period->unsignedTimecardsWorkers }}
                     </div>
                     <div class="label">
                       Workers
@@ -61,7 +61,7 @@
                 <div class="four wide column middle aligned">
                   <div class="ui yellow statistic">
                     <div class="value">
-                      8
+                      {{ $period->unsignedTimecardsSupervisors }}
                     </div>
                     <div class="label">
                       Supervisors
@@ -69,9 +69,41 @@
                   </div>
                 </div>
               </div>
-              <a href="/coordinator/payments/pay"><< Back</a>
+              <a href="/coordinator/payments/pay"><i class="angle double left icon"></i>Back</a>
+              @if (count($period->departments) > 0)
+              <div class="ui divider"></div>
+              <?php
+                $items = $period->departments->split(2);
+              ?>
+              <div class="ui two column grid">
+                <div class="ui column">
+                  <div class="ui list">
+                    @foreach ($items[0] as $item)
+                    <div class='item'>
+                      <div class='content'>
+                        <a href="#Unsigned - {{ $item->name }}">{{ $item->name }} <strong>({{ $item->timecards->count() }})</strong></a>
+                      </div>
+                    </div>
+                    @endforeach
+                  </div>
+                </div>
+                <div class="ui column">
+                  <div class="ui list">
+                    @foreach ($items[1] as $item)
+                    <div class='item'>
+                      <div class='content'>
+                        <a href="#Unsigned - {{ $item->name }}">{{ $item->name }} <strong>({{ $item->timecards->count() }})</strong></a>
+                      </div>
+                    </div>
+                    @endforeach
+                  </div>
+                </div>
+              </div>
+              <div class="ui divider"></div>
+              @endif
+
               @foreach ($period->departments as $department)
-              <div class="ui dividing header">
+              <div class="ui dividing header" id="Unsigned - {{ $department->name }}">
                 {{ $department->name }}
               </div>
               <table class="ui very compact table">
@@ -99,10 +131,19 @@
                   @endforeach
                 </tbody>
               </table>
-              <a href="#" class="ui tiny basic blue button disabled">Remind Supervisor</a>
+              <div class="ui grid">
+                <div class='two column row'>
+                  <div class="left floatd column">
+                    <a href="#" class="ui tiny basic blue button disabled">Remind Supervisor</a>
+                  </div>
+                  <div class="right floated right aligned column">
+                    <a href="#top" class="right floated"><i class="angle double up icon"></i>Back to Top</a>
+                  </div>
+                </div>
+              </div>
               <br /><br />
               @endforeach
-              <a href="/coordinator/payments/pay"><< Back</a>
+              <a href="/coordinator/payments/pay"><i class="angle double left icon"></i>Back</a>
         </div>
       </div>
     </div>
