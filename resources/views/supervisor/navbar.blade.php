@@ -29,6 +29,14 @@
       <!-- <a class="item" href="#">History</a> -->
     </div>
   </div>
+  <div class="item">
+    <div class="header">
+      Workers
+    </div>
+    <div class="menu">
+      <a class='item' href="/supervisor/attendance">Attendance</a>
+    </div>
+  </div>
   <!-- <div class="item">
     <div class="header">Workers</div>
     <div class="menu">

@@ -890,6 +890,45 @@ class SupervisorController extends Controller
     }
     public function showPeriodHistory() {}
 
+    public function showAttendance() {
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
+
+      // get all periods
+      $periods = DB::table('payment_periods')->orderBy('endDate', 'desc')->get();
+
+      // get all workers
+      $workers = $this->getWorkers();
+
+      // append timecards associated with the current period
+      // date range string
+      foreach ($periods as $item) {
+        $startDate = date('d M', strtotime($item->startDate));
+        $endDate = date('d M', strtotime($item->endDate));
+        $year = date('Y', strtotime($item->endDate));
+
+        $item->dateRange = $startDate . ' - ' . $endDate . ' ' . $year;
+
+        $item->timecards = $this->getPeriodTimecards($item);
+
+        $totalTardies = 0;
+        $totalAbsences = 0;
+        foreach ($item->timecards as $timecard) {
+          $total = $this->countTimecardTardies($timecard);
+          $totalTardies += $total;
+
+          $total = $this->countTimecardAbsences($timecard);
+          $totalAbsences += $total;
+
+        }
+
+        $item->totalTardies = $totalTardies;
+        $item->totalAbsences = $totalAbsences;
+      }
+      return view('/supervisor/attendance')
+        ->with('periods', $periods);
+    }
+    public function showAttendancePeriod(Request $request) {}
     private function checkLoggedIn() {
       $role = session('role');
 
