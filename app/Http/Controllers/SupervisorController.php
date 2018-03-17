@@ -743,104 +743,9 @@ class SupervisorController extends Controller
       $departments = $this->getDepartments();
 
       // payment graph data
-
-        // labels
-        $labels = collect();
-
-        $startDate = strtotime($period->startDate);
-        $endDate = strtotime($period->endDate . " 23:59:59");
-
-        $start = $startDate;
-
-        while ($start < $endDate) {
-          $string = date('d M', $start) . ' - ' . date('d M', strtotime('+6 days', $start));
-          $labels->push($string);
-
-          $start = strtotime('+7 days', $start);
-        }
-
-        $paymentGraph = collect();
-        $paymentGraph->labels = $labels;
-
-        // data
-        $data = collect();
-
-        $startDate = strtotime($period->startDate);
-        $endDate = strtotime($period->endDate . " 23:59:59");
-
-        $start = $startDate;
-
-        while ($start < $endDate) {
-
-          $cardStart = date('Y-M-d', $start);
-          $cardEnd = date('Y-M-d', strtotime('+6 days', strtotime($cardStart . ' 23:59:59')));
-
-          $total = 0;
-          foreach ($departments as $department) {
-            $sum = $timecards
-              ->where('dept_id', $department->id)
-              ->where('startDate', $cardStart)
-              ->where('endDate', $cardEnd)
-              ->sum('pay');
-            $total += $sum;
-          }
-
-          $data->push($total);
-
-          $start = strtotime('+7 days', $start);
-        }
-
-        $paymentGraph->data = $data;
-
+      $paymentsGraphData = $this->getTotalPaymentsForPeriod($period);
       // hours graph data
-
-        // labels
-        $labels = collect();
-
-        $startDate = strtotime($period->startDate);
-        $endDate = strtotime($period->endDate . " 23:59:59");
-
-        $start = $startDate;
-
-        while ($start < $endDate) {
-          $string = date('d M', $start) . ' - ' . date('d M', strtotime('+6 days', $start));
-          $labels->push($string);
-
-          $start = strtotime('+7 days', $start);
-        }
-
-        $hoursGraph = collect();
-        $hoursGraph->labels = $labels;
-
-        // data
-        $data = collect();
-
-        $startDate = strtotime($period->startDate);
-        $endDate = strtotime($period->endDate . " 23:59:59");
-
-        $start = $startDate;
-
-        while ($start < $endDate) {
-
-          $cardStart = date('Y-M-d', $start);
-          $cardEnd = date('Y-M-d', strtotime('+6 days', strtotime($cardStart . ' 23:59:59')));
-
-          $total = 0;
-          foreach ($departments as $department) {
-            $sum = $timecards
-              ->where('dept_id', $department->id)
-              ->where('startDate', $cardStart)
-              ->where('endDate', $cardEnd)
-              ->sum('hours');
-            $total += $sum;
-          }
-
-          $data->push($total);
-
-          $start = strtotime('+7 days', $start);
-        }
-
-        $hoursGraph->data = $data;
+      $hoursGraphData = $this->getTotalHoursForPeriod($period);
 
       // total tardies and absences
         $tardies = 0;
@@ -852,6 +757,27 @@ class SupervisorController extends Controller
 
         $period->totalTardies = $tardies;
         $period->totalAbsences = $absences;
+
+      // tardies and absences by worker
+      $workers = $this->getWorkers();
+
+      foreach ($workers as $index => $worker) {
+        $workerTimecards = $this->getWorkerTimecards($worker);
+
+        $tardies = 0;
+        $absences = 0;
+        foreach ($workerTimecards as $i => $card) {
+          $tardies += $this->countTimecardTardies($card);
+          $absences += $this->countTimecardAbsences($card);
+
+        }
+
+        foreach ($workerTimecards as $card) {
+          $worker->tardyDates = $this->getTimecardTardyDates($card);
+          $worker->absentDates = $this->getTimecardAbsentDates($card);
+        }
+
+      }
 
       // total payment
       $period->totalPayment = number_format($timecards->sum('pay'));
@@ -870,7 +796,6 @@ class SupervisorController extends Controller
       $period->dateRange = date('d M', $start) . ' - ' . date('d M', $end) . ' ' . date('Y', $end);
 
       // worker summaries
-      $workers = $this->getWorkers();
       foreach ($workers as $worker) {
         $fullname = $worker->firstname . ' ' . $worker->lastname;
         $worker->fullname = $fullname;
@@ -879,10 +804,9 @@ class SupervisorController extends Controller
         $worker->totalPay = $timecards->where('worker_id', $worker->id)->sum('pay');
       }
 
-
       return view('/supervisor/periodCurrent')
-        ->with('paymentGraph', $paymentGraph)
-        ->with('hoursGraph', $hoursGraph)
+        ->with('paymentsGraphData', $paymentsGraphData)
+        ->with('hoursGraphData', $hoursGraphData)
         ->with('workers', $workers)
         ->with('period', $period);
 
@@ -1525,6 +1449,113 @@ class SupervisorController extends Controller
       }
 
       return $absences;
+    }
+
+
+    private function getTotalPaymentsForPeriod($period) {
+      // receives a period object then returns two collections:
+      // a collection of date ranges and a collection of amounts
+
+      $timecards = $this->getPeriodTimecards($period);
+
+      $periodStart = strtotime($period->startDate . ' 00:00:00');
+      $periodEnd = strtotime($period->endDate . ' 23:59:59');
+
+      $start = strtotime($period->startDate . ' 00:00:00');
+      $end = strtotime('+6 days', $start);
+      $end = date('Y-m-d', $end) . ' 23:59:59';
+      $end = strtotime($end);
+
+      $weeks = collect();
+      $payments = collect();
+
+      while ($end <= $periodEnd) {
+
+        $cards = $timecards;
+
+        $startDate = date('d M', $start);
+        $endDate = date('d M', $end);
+
+        $dateString = $startDate . ' - ' . $endDate;
+        $weeks->push($dateString);
+
+        $startDate = date('Y-m-d', $start);
+        $endDate = date('Y-m-d', $end);
+
+        $total = 0;
+        foreach ($cards as $index => $card) {
+          $cardStart = $card->startDate;
+          $cardEnd = $card->endDate;
+
+          if ($cardStart == $startDate && $cardEnd == $endDate) {
+            $total += $card->pay;
+            round($total);
+
+          }
+        }
+
+        $payments->push($total);
+
+        $start = strtotime('+7 days', $start);
+        $end = strtotime('+7 days', $end);
+
+
+      }
+
+      $items = collect();
+      $items->weeks = $weeks;
+      $items->payments = $payments;
+
+      return $items;
+    }
+    private function getTotalHoursForPeriod($period) {
+      // this function receives a period object and returns two collections:
+      // week ranges and total hours
+
+      $timecards = $this->getPeriodTimecards($period);
+
+      $periodStart = strtotime($period->startDate . ' 00:00:00');
+      $periodEnd = strtotime($period->endDate . ' 23:59:59');
+
+      $start = strtotime($period->startDate . ' 00:00:00');
+      $end = strtotime('+6 days', $start);
+      $end = date('Y-m-d', $end) . ' 23:59:59';
+      $end = strtotime($end);
+
+      $weeks = collect();
+      $hours = collect();
+
+      while ($end <= $periodEnd) {
+
+        $startDate = date('d M', $start);
+        $endDate = date('d M', $end);
+        $string = $startDate . ' - ' . $endDate;
+
+        $weeks->push($string);
+
+
+        $startDate = date('Y-m-d', $start);
+        $endDate = date('Y-m-d', $end);
+
+        $cards = $timecards
+          ->where('startDate', $startDate)
+          ->where('endDate', $endDate);
+
+        $total = $cards->sum('hours');
+
+        $hours->push(round($total,1));
+
+        $start = strtotime('+7 days', $start);
+        $end = strtotime('+7 days', $end);
+      }
+
+      $items = collect();
+      $items->weeks = $weeks;
+      $items->hours = $hours;
+
+      return $items;
+
+
     }
 
 }

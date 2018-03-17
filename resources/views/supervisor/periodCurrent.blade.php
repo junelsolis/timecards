@@ -1,4 +1,4 @@
-<!doctype html>
+  <!doctype html>
 <html lang="en">
   <head>
     <title>Supervisor | Timecards</title>
@@ -96,7 +96,7 @@
           <h2 class="ui blue header" id="attendance">Attendance</h2>
           <div class="ui divider"></div>
           <div class="ui internally celled grid">
-            <div class="three wide column center aligned">
+            <div class="two wide column center aligned">
               <div class="ui tiny yellow statistic">
                 <div class="value">
                   {{ $period->totalTardies }}
@@ -106,7 +106,7 @@
                 </div>
               </div>
             </div>
-            <div class="three wide column center aligned">
+            <div class="two wide column center aligned">
               <div class="ui tiny yellow statistic">
                 <div class="value">
                   {{ $period->totalAbsences }}
@@ -117,6 +117,43 @@
               </div>
             </div>
           </div>
+          @if ($period->totalTardies > 0 || $period->totalAbsences >0)
+            <div class="ui styled accordion">
+            @foreach ($workers as $worker)
+              @if ($worker->tardyDates->count() > 0 || $worker->absentDates->count() > 0)
+                <div class="title">
+                  <i class="dropdown icon"></i>
+                  {{ $worker->fullname }}
+                </div>
+                <div class="content">
+                  <div class="ui two column grid">
+                    <div class="column">
+                      <h5 class="ui yellow header">Tardies</h5>
+                      <div class="ui list">
+                        @foreach ($worker->tardyDates as $date)
+                        <div class="item">
+                          {{ $date }}
+                        </div>
+                        @endforeach
+                      </div>
+                    </div>
+                    <div class="column">
+                      <h5 class="ui yellow header">Absences</h5>
+                      <div class="ui list">
+                        @foreach ($worker->absentDates as $date)
+                        <div class="item">
+                          {{ $date }}
+                        </div>
+                        @endforeach
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              @endif
+            @endforeach
+            </div>
+          @endif
+          <br />
           <a href="#top"><i class="angle double up icon"></i>Back to Top</a>
           <br /><br />
 
@@ -152,10 +189,10 @@
       var paymentChart = new Chart(payments, {
         type: 'line',
         data: {
-          labels: <?php echo json_encode($paymentGraph->labels) ?>,
+          labels: <?php echo json_encode($paymentsGraphData->weeks) ?>,
           datasets: [{
               label: 'Total Payment',
-              data: <?php echo json_encode($paymentGraph->data) ?>,
+              data: <?php echo json_encode($paymentsGraphData->payments) ?>,
               borderWidth: 2
           }]
         },
@@ -172,10 +209,10 @@
       var hoursChart = new Chart(hours, {
         type: 'line',
         data: {
-          labels: <?php echo json_encode($hoursGraph->labels) ?>,
+          labels: <?php echo json_encode($hoursGraphData->weeks) ?>,
           datasets: [{
               label: 'Total Hours',
-              data: <?php echo json_encode($hoursGraph->data) ?>,
+              data: <?php echo json_encode($hoursGraphData->hours) ?>,
               borderWidth: 2
           }]
         },
