@@ -905,6 +905,12 @@ class SupervisorController extends Controller
       $timecards = $this->getWorkerTimecards($worker);
       $worker->timecards = $timecards;
 
+      // tardies
+      $worker->tardyDates = $this->getWorkerTardyDates($worker);
+
+      // absences
+      $worker->absentDates = $this->getWorkerAbsentDates($worker);
+      
       // payment graph data
         // weeks
         $timecards = $timecards->sortBy('startDate');
@@ -986,10 +992,15 @@ class SupervisorController extends Controller
           $end = strtotime('+7 days', $end);
         }
 
+        $hoursGraphData = collect();
+        $hoursGraphData->weeks = $weeks;
+        $hoursGraphData->hours = $hours;
+
 
       return view('/supervisor/workerStatisticsDetails')
         ->with('worker', $worker)
-        ->with('paymentGraphData', $paymentGraphData);
+        ->with('paymentGraphData', $paymentGraphData)
+        ->with('hoursGraphData', $hoursGraphData);
     }
 
     public function showChangePassword() {
@@ -1313,15 +1324,6 @@ class SupervisorController extends Controller
       $departments = DB::table('departments')
         ->whereIn('id', $deptIds->pluck('dept_id'))
         ->get();
-      //
-      // $items = collect();
-      //
-      // foreach ($deptIds as $id) {
-      //   $department = $departments->where('id', $id->dept_id)->first();
-      //   $items->push($department);
-      // }
-      //
-      // return $items;
 
       return $departments;
 
@@ -1685,4 +1687,99 @@ class SupervisorController extends Controller
 
     }
 
+    private function getWorkerTardyDates($worker) {
+      $timecards = $this->getWorkerTimecards($worker);
+
+      $tardies = collect();
+
+      foreach ($timecards as $timecard) {
+        $start = strtotime($timecard->startDate);
+
+        $tardies = collect();
+        if ($timecard->sunTardy == 1) {
+          $date = date('Y-M-d', $start);
+          $tardies->push($date);
+        }
+
+        if ($timecard->monTardy == 1) {
+          $date = date('Y-M-d', strtotime('+1 day', $start));
+          $tardies->push($date);
+        }
+
+        if ($timecard->tueTardy == 1) {
+          $date = date('Y-M-d', strtotime('+2 days', $start));
+          $tardies->push($date);
+        }
+
+        if ($timecard->wedTardy == 1) {
+          $date = date('Y-M-d', strtotime('+3 days', $start));
+          $tardies->push($date);
+        }
+
+        if ($timecard->thuTardy == 1) {
+          $date = date('Y-M-d', strtotime('+4 days', $start));
+          $tardies->push($date);
+        }
+
+        if ($timecard->friTardy == 1) {
+          $date = date('Y-M-d', strtotime('+5 days', $start));
+          $tardies->push($date);
+        }
+
+        if ($timecard->satTardy == 1) {
+          $date = date('Y-M-d', strtotime('+6 days', $start));
+          $tardies->push($date);
+        }
+
+      }
+
+      return $tardies;
+    }
+    private function getWorkerAbsentDates($worker) {
+      $timecards = $this->getWorkerTimecards($worker);
+
+      $absences = collect();
+
+      foreach ($timecards as $timecard) {
+        $start = strtotime($timecard->startDate);
+
+        if ($timecard->sunAbsent == 1) {
+          $date = date('Y-M-d', $start);
+          $absences->push($date);
+        }
+
+        if ($timecard->monAbsent == 1) {
+          $date = date('Y-M-d', strtotime('+1 day', $start));
+          $absences->push($date);
+        }
+
+        if ($timecard->tueAbsent == 1) {
+          $date = date('Y-M-d', strtotime('+2 days', $start));
+          $absences->push($date);
+        }
+
+        if ($timecard->wedAbsent == 1) {
+          $date = date('Y-M-d', strtotime('+3 days', $start));
+          $absences->push($date);
+        }
+
+        if ($timecard->thuAbsent == 1) {
+          $date = date('Y-M-d', strtotime('+4 days', $start));
+          $absences->push($date);
+        }
+
+        if ($timecard->friAbsent == 1) {
+          $date = date('Y-M-d', strtotime('+5 days', $start));
+          $absences->push($date);
+        }
+
+        if ($timecard->satAbsent == 1) {
+          $date = date('Y-M-d', strtotime('+6 days', $start));
+          $absences->push($date);
+        }
+
+      }
+
+      return $absences;
+    }
 }
