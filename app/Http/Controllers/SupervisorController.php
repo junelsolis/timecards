@@ -878,6 +878,120 @@ class SupervisorController extends Controller
         ->with('workers', $workers);
     }
     public function showAttendancePeriod(Request $request) {}
+    public function showWorkerStatistics() {
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
+
+      $workers = $this->getWorkers();
+
+      return view('/supervisor/workerStatistics')
+        ->with('workers', $workers);
+    }
+    public function showWorkerStatisticsDetails(Request $request) {
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
+
+      $request->validate([
+        'id' => 'required|integer'
+      ]);
+
+      $id = $request['id'];
+
+      // retrieve worker object
+      $workers = $this->getWorkers();
+      $worker = $workers->where('id', $id)->first();
+
+      // append timecards
+      $timecards = $this->getWorkerTimecards($worker);
+      $worker->timecards = $timecards;
+
+      // payment graph data
+        // weeks
+        $timecards = $timecards->sortBy('startDate');
+
+        $firstCard = $timecards->first();
+        $lastCard = $timecards->last();
+
+        $start = strtotime($firstCard->startDate . ' 00:00:00');
+        $end = strtotime('+6 days', $start);
+        $end = date('Y-m-d', $end) . ' 23:59:59';
+        $end = strtotime($end);
+
+        $endDate = strtotime($lastCard->endDate . ' 23:59:59');
+
+        $weeks = collect();
+
+        while ($end <= $endDate) {
+          $startString = date('d M', $start);
+          $endString = date('d M', $end);
+          $string = $startString . ' - ' . $endString;
+          $weeks->push($string);
+
+          $start = strtotime('+7 days', $start);
+          $end = strtotime('+7 days', $end);
+        }
+
+        // payments
+        $start = strtotime($firstCard->startDate . ' 00:00:00');
+        $end = strtotime('+6 days', $start);
+        $end = date('Y-m-d', $end) . ' 23:59:59';
+        $end = strtotime($end);
+
+        $endDate = strtotime($lastCard->endDate . ' 23:59:59');
+
+        $payments = collect();
+
+        while ($end <= $endDate) {
+          $cardStart = date('Y-m-d', $start);
+          $cardEnd = date('Y-m-d', $end);
+
+          $cards = $timecards
+            ->where('startDate', $cardStart)
+            ->where('endDate', $cardEnd);
+
+          $total = $cards->sum('pay');
+          $payments->push($total);
+
+          $start = strtotime('+7 days', $start);
+          $end = strtotime('+7 days', $end);
+        }
+
+        $paymentGraphData = collect();
+        $paymentGraphData->weeks = $weeks;
+        $paymentGraphData->payments = $payments;
+
+      // hours graph data
+        // hours
+        $start = strtotime($firstCard->startDate . ' 00:00:00');
+        $end = strtotime('+6 days', $start);
+        $end = date('Y-m-d', $end) . ' 23:59:59';
+        $end = strtotime($end);
+
+        $endDate = strtotime($lastCard->endDate . ' 23:59:59');
+
+        $hours = collect();
+
+        while ($end <= $endDate) {
+          $cardStart = date('Y-m-d', $start);
+          $cardEnd = date('Y-m-d', $end);
+
+          $cards = $timecards
+            ->where('startDate', $cardStart)
+            ->where('endDate', $cardEnd);
+
+          $total = $cards->sum('hours');
+          $payments->push($total);
+
+          $start = strtotime('+7 days', $start);
+          $end = strtotime('+7 days', $end);
+        }
+
+
+      return view('/supervisor/workerStatisticsDetails')
+        ->with('worker', $worker)
+        ->with('paymentGraphData', $paymentGraphData);
+    }
+
     public function showChangePassword() {
       $check = $this->checkLoggedIn();
       if ($check == true) {} else { return redirect('/'); }
@@ -1195,74 +1309,56 @@ class SupervisorController extends Controller
       $id = session('userId');
 
       $deptIds = DB::table('superv_depts')->where('superv_id', $id)->get();
-      $departments = DB::table('departments')->get();
 
-      $items = collect();
+      $departments = DB::table('departments')
+        ->whereIn('id', $deptIds->pluck('dept_id'))
+        ->get();
+      //
+      // $items = collect();
+      //
+      // foreach ($deptIds as $id) {
+      //   $department = $departments->where('id', $id->dept_id)->first();
+      //   $items->push($department);
+      // }
+      //
+      // return $items;
 
-      foreach ($deptIds as $id) {
-        $department = $departments->where('id', $id->dept_id)->first();
-        $items->push($department);
-      }
-
-      return $items;
+      return $departments;
 
     }
     private function getWorkers() {
       // this function returns all the workers assigned to the supervisor
       // plus additional info
       $departments = $this->getDepartments();
-      $workerDepts = DB::table('worker_depts')->get();
-      $workersTable = DB::table('workers')->get();
-      $timecardsTable = DB::table('timecards')->get();
 
-      $items = collect();
+      $workerDeptsTable = DB::table('worker_depts')
+        ->whereIn('dept_id', $departments->pluck('id'))
+        ->get();
 
-      foreach ($departments as $department) {
-        // collect worker ids that match the department id
-        $workerIds = $workerDepts->where('dept_id', $department->id);
+      $workers = DB::table('workers')
+        ->whereIn('id', $workerDeptsTable->pluck('worker_id'))
+        ->get();
 
+      $timecards = DB::table('timecards')
+        ->whereIn('dept_id', $departments->pluck('id'))
+        ->get();
 
-        // collect workers that match the worker id
-        foreach ($workerIds as $item) {
-          $worker = $workersTable->where('id', $item->worker_id)->first();
+      foreach ($workers as $worker) {
+        $firstname = $worker->firstname;
+        $lastname = $worker->lastname;
 
-          // additional info
+        $worker->fullname = $firstname . ' ' . $lastname;
 
-            // fullname
-            $worker->fullname = $worker->firstname . ' ' . $worker->lastname;
+        $worker->totalTimecards = $timecards->where('worker_id', $worker->id)->count();
 
-          // push to items collection
-          $items->push($worker);
-        }
+        $workerDepts = $workerDeptsTable->where('worker_id', $worker->id);
+        $departmentNames = $departments->whereIn('id', $workerDepts->pluck('dept_id'));
+
+        $worker->departmentNames = $departmentNames->pluck('name');
       }
 
-      // count total timecards for each worker for the departments of this supervisor
-      foreach ($items as $worker) {
-
-        $totalTimecards = 0;
-        $workerDepartments = collect();
-
-        foreach($departments as $dept) {
-          $count = $timecardsTable->where('worker_id', $worker->id)
-            ->where('dept_id', $dept->id)->count();
-
-          $totalTimecards = $totalTimecards + $count;
-
-          if ($count != 0) {
-            $workerDepartments->push($dept->name);
-          }
-        }
-
-
-
-        $worker->totalTimecards = $totalTimecards;
-        $worker->departmentNames = $workerDepartments;
-      }
-
-
-      $sorted = $items->sortBy('lastname');
-
-      return $sorted;
+      $workers = $workers->sortBy('lastname');
+      return $workers;
 
 
     }
@@ -1271,18 +1367,12 @@ class SupervisorController extends Controller
       // with a worker for this supervisor's departments.
 
       $departments = $this->getDepartments();
-      $timecards = DB::table('timecards')->get();
+      $timecards = DB::table('timecards')
+        ->whereIn('dept_id', $departments->pluck('id'))
+        ->where('worker_id', $worker->id)
+        ->get();
 
-      $items = collect();
-      foreach ($departments as $dept) {
-        foreach ($timecards as $card) {
-          if ($card->dept_id == $dept->id && $card->worker_id == $worker->id) {
-            $items->push($card);
-          }
-        }
-      }
-
-      return $items;
+      return $timecards;
     }
 
     // private function countTimecardTardies($id, $timecards) {
