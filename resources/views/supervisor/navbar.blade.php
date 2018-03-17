@@ -37,6 +37,15 @@
       <a class='item' href="/supervisor/attendance">Attendance</a>
     </div>
   </div>
+  <div class="item">
+    <div class="header">
+      Account
+    </div>
+    <div class="menu">
+      <a class="item" href="/supervisor/password">Change Password</a>
+      <a class='item' href="/logout">Logout</a>
+    </div>
+  </div>
   <!-- <div class="item">
     <div class="header">Workers</div>
     <div class="menu">
@@ -56,11 +65,6 @@
       <a class="item">Send Email</a>
     </div>
   </div> -->
-  <div class="item">
-    <div class="header">
-      <a href="/logout">Logout</a>
-    </div>
-  </div>
   <div class="item">
     <p class="grey" style="font-size: 0.8em;">
       <em>Created by Junel R.S. Solis&nbsp;|&nbsp;MAA</em>

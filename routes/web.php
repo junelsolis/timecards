@@ -71,6 +71,9 @@ Route::get('/supervisor/payments/history', 'SupervisorController@showPeriodHisto
 
 Route::get('/supervisor/attendance', 'SupervisorController@showAttendance');
 
+Route::get('/supervisor/password', 'SupervisorController@showChangePassword');
+Route::post('/supervisor/password', 'SupervisorController@changePassword');
+
 // Email Routes
 Route::post('/coordinator/email/sendWorkerPasswordReset', 'EmailController@sendWorkerPasswordReset');
 Route::post('/coordinator/email/sendSupervisorPasswordReset', 'EmailController@sendSupervisorPasswordReset');

@@ -954,6 +954,15 @@ class SupervisorController extends Controller
         ->with('workers', $workers);
     }
     public function showAttendancePeriod(Request $request) {}
+    public function showChangePassword() {
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
+
+      return view('/supervisor/passwordChange');
+    }
+    public function changePassword(Request $request) {}
+
+
     private function checkLoggedIn() {
       $role = session('role');
 
@@ -1353,13 +1362,17 @@ class SupervisorController extends Controller
 
       // get current timestamp
       $now = strtotime('now');
+      $now = date('Y-m-d', $now);
+      $now = $now . ' 23:59:59';
+      $now = strtotime($now);
+
 
       // all payment periods
       $paymentPeriods = DB::table('payment_periods')->get();
 
       foreach ($paymentPeriods as $index => $i) {
-        $startDate = strtotime($i->startDate);
-        $endDate = strtotime($i->endDate);
+        $startDate = strtotime($i->startDate . ' 00:00:00');
+        $endDate = strtotime($i->endDate . ' 23:59:59');
 
         if ($now >= $startDate && $now <= $endDate) {}
         else {
