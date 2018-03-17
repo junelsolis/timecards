@@ -41,10 +41,12 @@
             </div>
           </div>
           @endif
+
+
+          @if ($activeTimecards->count() >= 1)
           <h1 class="ui dividing header" id="top">
             Timecards this week
           </h1>
-          @if (isset($activeTimecards))
           <?php
             $day = strtolower(date('D'));
 
@@ -141,10 +143,7 @@
           @endif
 
 
-          <!-- <div class="ui segment">
-            stats go in here
-          </div> -->
-          @if (count($unsignedTimecards) > 0)
+          @if ($unsignedTimecards->count() >= 1)
           <h2 class="ui dividing header">Unsigned Timecards</h2>
           <div class="ui styled fluid accordion">
             @foreach ($unsignedTimecards as $timecard)
@@ -203,14 +202,12 @@
                 <div class="four wide column center aligned">
                   <a class="ui tiny basic blue button" href="/supervisor/timecards/edit?id={{ $timecard->id }}">Edit</a>
                   <a class="ui tiny orange button" href="/supervisor/timecards/sign?id={{$timecard->id}}">Sign</a>
-
                 </div>
               </div>
             </div>
             @endforeach
           </div>
           @endif
-
 
 
           @if ($workers)
