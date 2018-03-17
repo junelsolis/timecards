@@ -41,8 +41,45 @@
             </div>
           </div>
           @endif
+
+          @if ($workers->count() > 0)
+          <h1 class="ui dividing header" id="top">Attendance</h1>
+          @foreach ($workers as $worker)
+          <h3 class="ui blue header">{{ $worker->fullname }}</h3>
+          <div class="ui two column grid">
+            <div class="column">
+              <h4 class='ui yellow header'>Tardies</h4>
+              @if ($worker->tardyDates->count() > 0)
+              <div class="ui divided list">
+                @foreach ($worker->tardyDates as $date)
+                <div class="item">
+                  {{ $date }}
+                </div>
+                @endforeach
+              </div>
+              @endif
+            </div>
+            <div class="column">
+              <h4 class="ui yellow header">Absences</h4>
+              @if ($worker->absentDates->count() >0)
+              <div class="ui divided list">
+                @foreach ($worker->absentDates as $date)
+                <div class="item">
+                  {{ $date }}
+                </div>
+                @endforeach
+              </div>
+              @endif
+            </div>
+          </div>
+          <div class="ui divider"></div>
+          <a href="#top"><i class="angle double up icon"></i>Back to Top</a>
+          @endforeach
+          @endif
+
+
           @if ($periods->count() > 0)
-          <h1 class="ui dividing header" id="top">Attendance Reports</h1>
+          <h1 class="ui dividing header">Reports</h1>
           <div class="ui three stackable cards">
             @foreach ($periods as $period)
             <div class="ui card">
@@ -60,12 +97,13 @@
               </div>
               <div class="extra content">
                 <a class="ui mini yellow basic disabled button">Details</a>
-                <a class="ui mini blue button"><i class="print icon"></i>Print Report</a>
+                <a class="ui mini blue button" href="/supervisor/attendance/period?id={{ $period->id }}"><i class="print icon"></i>Report</a>
               </div>
             </div>
             @endforeach
-          </div>
+          </div><br /><br />
           @endif
+
         </div>
       </div>
     </div>
