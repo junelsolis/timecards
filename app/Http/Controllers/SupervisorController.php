@@ -884,7 +884,44 @@ class SupervisorController extends Controller
 
       return view('/supervisor/passwordChange');
     }
-    public function changePassword(Request $request) {}
+    public function changePassword(Request $request) {
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
+
+      $request->validate([
+        'password' => 'required|string',
+        'newPassword' => 'required|string|min:8',
+        'confirmPassword' => 'required|string|min:8'
+      ]);
+
+      $password = $request['password'];
+      $newPassword = $request['newPassword'];
+      $confirmPassword = $request['confirmPassword'];
+
+      if ($newPassword != $confirmPassword) {
+        return back()->with('error', 'New passwords do not match. Please try again.');
+      }
+
+      $password = sha1($password);
+      $newPassword = sha1($newPassword);
+
+      // retrieve supervisor object
+      $id = session('userId');
+      $supervisor = DB::table('supervisors')->where('id', $id)->first();
+
+      // check if user entered the correct password
+      if ($password != $supervisor->password) {
+        return back()->with('error', 'You entered the wrong password. Please try again.');
+      }
+
+      // update the supervisors password then logout.
+      DB::table('supervisors')->where('id', $id)
+        ->update([
+          'password' => $newPassword
+        ]);
+
+      return redirect('/logout');
+    }
 
 
     private function checkLoggedIn() {

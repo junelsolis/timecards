@@ -43,7 +43,28 @@
           @endif
 
         <h1 class="ui dividing header">Change Password</h1>
-
+        <form class="ui form" action="/supervisor/password" method="post">
+          {{ csrf_field() }}
+          <div class="six wide field">
+            <label>Current Password</label>
+            <input type="password" name="password" required placeholder="Enter current password"/>
+          </div>
+          <div class="fields">
+            <div class="six wide field">
+              <label>New Password</label>
+              <input type="password" name="newPassword" required placeholder="Enter new password" />
+            </div>
+            <div class="six wide field">
+              <label>Confirm Password</label>
+              <input type="password" name="confirmPassword" required placeholder="Confirm new password" />
+            </div>
+          </div>
+          <div class="ui buttons">
+            <button class="ui blue button" type="submit">Submit</button>
+            <div class="or"></div>
+            <a href="/supervisor" class="ui grey button">Cancel</a>
+          </div>
+        </form>
         </div>
       </div>
     </div>
