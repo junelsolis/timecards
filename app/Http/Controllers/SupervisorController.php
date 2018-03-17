@@ -703,20 +703,20 @@ class SupervisorController extends Controller
 
       if ($day === 'Sun') {
 
-        $startDate = date('Y-m-d', strtotime('now'));
-        $endDate = date('Y-m-d', strtotime('+6 days'));
+        $startDate = date('Y-M-d', strtotime('now'));
+        $endDate = date('Y-M-d', strtotime('+6 days'));
       }
 
       switch ($day) {
         case 'Sun':
-          $startDate = date('Y-m-d', strtotime('now'));
-          $endDate = date('Y-m-d', strtotime('+6 days'));
+          $startDate = date('Y-M-d', strtotime('now'));
+          $endDate = date('Y-M-d', strtotime('+6 days'));
           break;
         default:
-          $startDate = date('Y-m-d', strtotime('Sunday last week'));
+          $startDate = date('Y-M-d', strtotime('Sunday last week'));
           $sun = strtotime('Sunday last week');
           $end = strtotime('+6 days', $sun);
-          $endDate = date('Y-m-d', $end);
+          $endDate = date('Y-M-d', $end);
           break;
       }
 
@@ -772,8 +772,8 @@ class SupervisorController extends Controller
 
         while ($start < $endDate) {
 
-          $cardStart = date('Y-m-d', $start);
-          $cardEnd = date('Y-m-d', strtotime('+6 days', strtotime($cardStart . ' 23:59:59')));
+          $cardStart = date('Y-M-d', $start);
+          $cardEnd = date('Y-M-d', strtotime('+6 days', strtotime($cardStart . ' 23:59:59')));
 
           $total = 0;
           foreach ($departments as $department) {
@@ -822,8 +822,8 @@ class SupervisorController extends Controller
 
         while ($start < $endDate) {
 
-          $cardStart = date('Y-m-d', $start);
-          $cardEnd = date('Y-m-d', strtotime('+6 days', strtotime($cardStart . ' 23:59:59')));
+          $cardStart = date('Y-M-d', $start);
+          $cardEnd = date('Y-M-d', strtotime('+6 days', strtotime($cardStart . ' 23:59:59')));
 
           $total = 0;
           foreach ($departments as $department) {
@@ -890,6 +890,70 @@ class SupervisorController extends Controller
     }
     public function showPeriodHistory() {}
 
+    public function showAttendance() {
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
+
+      // get all periods
+      $periods = DB::table('payment_periods')->orderBy('endDate', 'desc')->get();
+
+      // get all workers
+      $workers = $this->getWorkers();
+
+      // append related timecards for each worker
+      foreach ($workers as $worker) {
+        $timecards = $this->getWorkerTimecards($worker);
+        $worker->timecards = $timecards;
+
+        // append tardy dates
+        foreach ($worker->timecards as $timecard) {
+          $worker->tardyDates = $this->getTimecardTardyDates($timecard);
+        }
+
+        // append absent dates
+        foreach ($worker->timecards as $timecard) {
+          $worker->absentDates = $this->getTimecardAbsentDates($timecard);
+        }
+      }
+
+      // remove workers with no attendance issues
+      foreach ($workers as $index => $worker) {
+        if ($worker->tardyDates->count() == 0 && $worker->absentDates->count() == 0) {
+          $workers->forget($index);
+        }
+      }
+
+      // append timecards associated with the current period
+      // date range string
+      foreach ($periods as $item) {
+        $startDate = date('d M', strtotime($item->startDate));
+        $endDate = date('d M', strtotime($item->endDate));
+        $year = date('Y', strtotime($item->endDate));
+
+        $item->dateRange = $startDate . ' - ' . $endDate . ' ' . $year;
+
+        $item->timecards = $this->getPeriodTimecards($item);
+
+        $totalTardies = 0;
+        $totalAbsences = 0;
+        foreach ($item->timecards as $timecard) {
+          $total = $this->countTimecardTardies($timecard);
+          $totalTardies += $total;
+
+          $total = $this->countTimecardAbsences($timecard);
+          $totalAbsences += $total;
+
+        }
+
+        $item->totalTardies = $totalTardies;
+        $item->totalAbsences = $totalAbsences;
+      }
+
+      return view('/supervisor/attendance')
+        ->with('periods', $periods)
+        ->with('workers', $workers);
+    }
+    public function showAttendancePeriod(Request $request) {}
     private function checkLoggedIn() {
       $role = session('role');
 
@@ -909,20 +973,20 @@ class SupervisorController extends Controller
 
       if ($day === 'Sun') {
 
-        $startDate = date('Y-m-d', strtotime('now'));
-        $endDate = date('Y-m-d', strtotime('+6 days'));
+        $startDate = date('Y-M-d', strtotime('now'));
+        $endDate = date('Y-M-d', strtotime('+6 days'));
       }
 
       switch ($day) {
         case 'Sun':
-          $startDate = date('Y-m-d', strtotime('now'));
-          $endDate = date('Y-m-d', strtotime('+6 days'));
+          $startDate = date('Y-M-d', strtotime('now'));
+          $endDate = date('Y-M-d', strtotime('+6 days'));
           break;
         default:
-          $startDate = date('Y-m-d', strtotime('Sunday last week'));
+          $startDate = date('Y-M-d', strtotime('Sunday last week'));
           $sun = strtotime('Sunday last week');
           $end = strtotime('+6 days', $sun);
-          $endDate = date('Y-m-d', $end);
+          $endDate = date('Y-M-d', $end);
           break;
       }
 
@@ -991,20 +1055,20 @@ class SupervisorController extends Controller
 
       if ($day === 'Sun') {
 
-        $startDate = date('Y-m-d', strtotime('now'));
-        $endDate = date('Y-m-d', strtotime('+6 days'));
+        $startDate = date('Y-M-d', strtotime('now'));
+        $endDate = date('Y-M-d', strtotime('+6 days'));
       }
 
       switch ($day) {
         case 'Sun':
-          $startDate = date('Y-m-d', strtotime('now'));
-          $endDate = date('Y-m-d', strtotime('+6 days'));
+          $startDate = date('Y-M-d', strtotime('now'));
+          $endDate = date('Y-M-d', strtotime('+6 days'));
           break;
         default:
-          $startDate = date('Y-m-d', strtotime('Sunday last week'));
+          $startDate = date('Y-M-d', strtotime('Sunday last week'));
           $sun = strtotime('Sunday last week');
           $end = strtotime('+6 days', $sun);
-          $endDate = date('Y-m-d', $end);
+          $endDate = date('Y-M-d', $end);
           break;
       }
 
@@ -1232,6 +1296,24 @@ class SupervisorController extends Controller
 
 
     }
+    private function getWorkerTimecards($worker) {
+      // this function retrieves all the timecards associated
+      // with a worker for this supervisor's departments.
+
+      $departments = $this->getDepartments();
+      $timecards = DB::table('timecards')->get();
+
+      $items = collect();
+      foreach ($departments as $dept) {
+        foreach ($timecards as $card) {
+          if ($card->dept_id == $dept->id && $card->worker_id == $worker->id) {
+            $items->push($card);
+          }
+        }
+      }
+
+      return $items;
+    }
 
     // private function countTimecardTardies($id, $timecards) {
     //   // receives a timecard id and a collection of timecards and counts the number of tardies in that timecard
@@ -1348,6 +1430,88 @@ class SupervisorController extends Controller
 
 
       return $count;
+    }
+    private function getTimecardTardyDates($timecard) {
+      $start = strtotime($timecard->startDate);
+
+      $tardies = collect();
+      if ($timecard->sunTardy == 1) {
+        $date = date('Y-M-d', $start);
+        $tardies->push($date);
+      }
+
+      if ($timecard->monTardy == 1) {
+        $date = date('Y-M-d', strtotime('+1 day', $start));
+        $tardies->push($date);
+      }
+
+      if ($timecard->tueTardy == 1) {
+        $date = date('Y-M-d', strtotime('+2 days', $start));
+        $tardies->push($date);
+      }
+
+      if ($timecard->wedTardy == 1) {
+        $date = date('Y-M-d', strtotime('+3 days', $start));
+        $tardies->push($date);
+      }
+
+      if ($timecard->thuTardy == 1) {
+        $date = date('Y-M-d', strtotime('+4 days', $start));
+        $tardies->push($date);
+      }
+
+      if ($timecard->friTardy == 1) {
+        $date = date('Y-M-d', strtotime('+5 days', $start));
+        $tardies->push($date);
+      }
+
+      if ($timecard->satTardy == 1) {
+        $date = date('Y-M-d', strtotime('+6 days', $start));
+        $tardies->push($date);
+      }
+
+      return $tardies;
+    }
+    private function getTimecardAbsentDates($timecard) {
+      $start = strtotime($timecard->startDate);
+
+      $absences = collect();
+      if ($timecard->sunAbsent == 1) {
+        $date = date('Y-M-d', $start);
+        $absences->push($date);
+      }
+
+      if ($timecard->monAbsent == 1) {
+        $date = date('Y-M-d', strtotime('+1 day', $start));
+        $absences->push($date);
+      }
+
+      if ($timecard->tueAbsent == 1) {
+        $date = date('Y-M-d', strtotime('+2 days', $start));
+        $absences->push($date);
+      }
+
+      if ($timecard->wedAbsent == 1) {
+        $date = date('Y-M-d', strtotime('+3 days', $start));
+        $absences->push($date);
+      }
+
+      if ($timecard->thuAbsent == 1) {
+        $date = date('Y-M-d', strtotime('+4 days', $start));
+        $absences->push($date);
+      }
+
+      if ($timecard->friAbsent == 1) {
+        $date = date('Y-M-d', strtotime('+5 days', $start));
+        $absences->push($date);
+      }
+
+      if ($timecard->satAbsent == 1) {
+        $date = date('Y-M-d', strtotime('+6 days', $start));
+        $absences->push($date);
+      }
+
+      return $absences;
     }
 
 }
