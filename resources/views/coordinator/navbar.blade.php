@@ -28,7 +28,6 @@
     <div class="header">Payments</div>
     <div class="menu">
       <a class="item" href="/coordinator/payments/pay">Pay</a>
-      <a class="item">Generate Report</a>
       <a class="item" href="/coordinator/payment-periods">Payment Periods</a>
       <a class="item" href="/coordinator/payments/payscale">Set Payscale</a>
     </div>
