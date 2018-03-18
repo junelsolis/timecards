@@ -68,7 +68,7 @@
     <div class="ui message">
       Forgot your password? <a href="#">Reset</a>
     </div>
-    <a href="/"><< Back to Login</a>
+    <a href="/"><i class="angle double left icon"></i>Back</a>
   </div>
 </div>
 <script>$('.message .close')
