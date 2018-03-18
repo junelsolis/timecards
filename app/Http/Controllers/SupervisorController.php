@@ -545,12 +545,12 @@ class SupervisorController extends Controller
       }
 
       // add contract hours to total then round
-      $total = $total + $contract;
+      // this is a bug $total = $total + $contract;
       $total = round($total,2);
 
       // calculate pay estimate
       $payscale = DB::table('payscale')->where('grade', $grade)->first();
-      $pay = $total * $payscale->pay;
+      $pay = ($total + $contract) * $payscale->pay;
 
       // update timecard in DB
       DB::table('timecards')->where('id', $id)
@@ -910,7 +910,7 @@ class SupervisorController extends Controller
 
       // absences
       $worker->absentDates = $this->getWorkerAbsentDates($worker);
-      
+
       // payment graph data
         // weeks
         $timecards = $timecards->sortBy('startDate');
