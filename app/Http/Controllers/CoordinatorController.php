@@ -1055,7 +1055,7 @@ class CoordinatorController extends Controller
 
       // check end date is not same as or before start date
       $start = strtotime($request['startDate']);
-      $end = strtotime($request['endDate'] . '+6 days');
+      $end = strtotime('+6 days', $start);
 
       // if all validation passed, continue
       $startDate = date('Y-m-d', $start);
