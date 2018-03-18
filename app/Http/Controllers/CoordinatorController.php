@@ -496,6 +496,30 @@ class CoordinatorController extends Controller
       return redirect('/coordinator/worker/edit')->with('msg', 'Worker details updated.');
 
     }
+    public function showAttendance() {
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
+
+      // get all workers
+      $workers = DB::table('workers')->orderBy('lastname')->get();
+
+      // append worker fullnames
+      foreach ($workers as $worker) {
+        $firstname = $worker->firstname;
+        $lastname = $worker->lastname;
+
+        $worker->fullname = $firstname . ' ' . $lastname;
+      }
+
+
+
+      $grouped = $workers->groupBy(function ($item, $key) {
+        return substr($item->lastname, 0,1);
+      });
+
+      return view('/coordinator/workerAttendance')
+        ->with('workers', $grouped);
+    }
 
     public function showPaymentPeriods() {
       $check = $this->checkLoggedIn();

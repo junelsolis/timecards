@@ -38,7 +38,7 @@
     <div class="menu">
       <a class="item" href="/coordinator/worker/add">Add</a>
       <a class="item" href="/coordinator/worker/edit">View</a>
-      <a class="item">Attendance</a>
+      <a class="item" href="/coordinator/worker/attendance">Attendance</a>
     </div>
   </div>
   <div class="item">

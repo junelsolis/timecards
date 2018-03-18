@@ -31,6 +31,7 @@ Route::post('/coordinator/worker/add', 'CoordinatorController@workerAdd');
 Route::get('/coordinator/worker/edit', 'CoordinatorController@showWorkerEdit');
 Route::get('/coordinator/worker/edit/item', 'CoordinatorController@showWorkerEditItem');
 Route::post('/coordinator/worker/edit/item', 'CoordinatorController@workerEditItem');
+Route::get('/coordinator/worker/attendance', 'CoordinatorController@showAttendance');
 
 Route::get('/coordinator/payment-periods', 'CoordinatorController@showPaymentPeriods');
 Route::get('/coordinator/payment-periods/add', 'CoordinatorController@showPaymentPeriodsAdd');
