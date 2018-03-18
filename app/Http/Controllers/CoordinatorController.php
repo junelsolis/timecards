@@ -669,7 +669,7 @@ class CoordinatorController extends Controller
       if ($check == true) {} else { return redirect('/'); }
 
       // get all payment periods
-      $periods = DB::table('payment_periods')->orderBy('endDate', 'desc')->get();
+      $periods = DB::table('payment_periods')->orderBy('endDate', 'asc')->get();
       // get all timecards
       $timecards = DB::table('timecards')->get();
 
