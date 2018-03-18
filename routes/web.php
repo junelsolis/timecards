@@ -70,6 +70,8 @@ Route::get('/supervisor/payments/current', 'SupervisorController@showPeriodCurre
 Route::get('/supervisor/payments/history', 'SupervisorController@showPeriodHistory');
 
 Route::get('/supervisor/attendance', 'SupervisorController@showAttendance');
+Route::get('/supervisor/worker/statistics', 'SupervisorController@showWorkerStatistics');
+Route::get('/supervisor/worker/statistics/details', 'SupervisorController@showWorkerStatisticsDetails');
 
 Route::get('/supervisor/password', 'SupervisorController@showChangePassword');
 Route::post('/supervisor/password', 'SupervisorController@changePassword');

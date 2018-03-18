@@ -35,6 +35,7 @@
     </div>
     <div class="menu">
       <a class='item' href="/supervisor/attendance">Attendance</a>
+      <a class='item' href="/supervisor/worker/statistics">Statistics</a>
     </div>
   </div>
   <div class="item">
