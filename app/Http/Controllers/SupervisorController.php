@@ -20,6 +20,7 @@ class SupervisorController extends Controller
 
       // get workers
       $workers = $this->getWorkers();
+
       $sortedWorkers = $workers->sortBy('lastname');
       $splitWorkers = $sortedWorkers->split(2);
 
@@ -550,7 +551,7 @@ class SupervisorController extends Controller
 
       // calculate pay estimate
       $payscale = DB::table('payscale')->where('grade', $grade)->first();
-      $pay = ($total + $contract) * $payscale->pay;
+      $pay = $total * $payscale->pay;
 
       // update timecard in DB
       DB::table('timecards')->where('id', $id)
@@ -1138,8 +1139,8 @@ class SupervisorController extends Controller
       return $count;
     }
     private function getSupervisorActiveTimecards() {
-      $check = $this->checkLoggedIn();
-      if ($check == true) {} else { return redirect('/'); }
+      // $check = $this->checkLoggedIn();
+      // if ($check == true) {} else { return redirect('/'); }
 
       // empty strings to hold start and end dates
       $startDate = '';
@@ -1148,30 +1149,30 @@ class SupervisorController extends Controller
       // get three-letter day of the week
       $day = date('D', strtotime('now'));
 
-      if ($day === 'Sun') {
-
-        $startDate = date('Y-M-d', strtotime('now'));
-        $endDate = date('Y-M-d', strtotime('+6 days'));
-      }
+      // if ($day == 'Sun') {
+      //
+      //   $startDate = date('Y-m-d', strtotime('now'));
+      //   $endDate = date('Y-m-d', strtotime('+6 days'));
+      // }
 
       switch ($day) {
         case 'Sun':
-          $startDate = date('Y-M-d', strtotime('now'));
-          $endDate = date('Y-M-d', strtotime('+6 days'));
+          $startDate = date('Y-m-d', strtotime('now'));
+          $endDate = date('Y-m-d', strtotime('+6 days'));
           break;
         default:
-          $startDate = date('Y-M-d', strtotime('Sunday last week'));
+          $startDate = date('Y-m-d', strtotime('Sunday last week'));
           $sun = strtotime('Sunday last week');
           $end = strtotime('+6 days', $sun);
-          $endDate = date('Y-M-d', $end);
+          $endDate = date('Y-m-d', $end);
           break;
       }
 
 
       $id = session('userId');
       $deptIds = DB::table('superv_depts')->where('superv_id', $id)->get();
-      $departments = DB::table('departments')->get();
-      $workers = DB::table('workers')->get();
+      $departments = DB::table('departments')->whereIn('id', $deptIds->pluck('dept_id'))->get();
+      $workers = $this->getWorkers();
       $payscale = DB::table('payscale')->get();
 
       $timecards = DB::table('timecards')
