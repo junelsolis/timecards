@@ -28,7 +28,6 @@
     <div class="header">Payments</div>
     <div class="menu">
       <a class="item" href="/coordinator/payments/pay">Pay</a>
-      <a class="item">Generate Report</a>
       <a class="item" href="/coordinator/payment-periods">Payment Periods</a>
       <a class="item" href="/coordinator/payments/payscale">Set Payscale</a>
     </div>
@@ -38,7 +37,7 @@
     <div class="menu">
       <a class="item" href="/coordinator/worker/add">Add</a>
       <a class="item" href="/coordinator/worker/edit">View</a>
-      <a class="item">Attendance</a>
+      <a class="item" href="/coordinator/worker/attendance">Attendance</a>
     </div>
   </div>
   <div class="item">

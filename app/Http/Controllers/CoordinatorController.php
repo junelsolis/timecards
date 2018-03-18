@@ -496,6 +496,45 @@ class CoordinatorController extends Controller
       return redirect('/coordinator/worker/edit')->with('msg', 'Worker details updated.');
 
     }
+    public function showAttendance() {
+      $check = $this->checkLoggedIn();
+      if ($check == true) {} else { return redirect('/'); }
+
+      // get all workers
+      $workers = DB::table('workers')->orderBy('lastname')->get();
+
+      // append worker fullnames
+      foreach ($workers as $worker) {
+        $firstname = $worker->firstname;
+        $lastname = $worker->lastname;
+
+        $worker->fullname = $firstname . ' ' . $lastname;
+      }
+
+      // append tardy and absent dates
+      foreach ($workers as $worker) {
+        $worker->tardyDates = $this->getWorkerTardies($worker);
+        $worker->absentDates = $this->getWorkerAbsences($worker);
+      }
+
+      // remove workers with no attendance problems
+      foreach ($workers as $index => $worker) {
+        $tardies = $worker->tardyDates->count();
+        $absences = $worker->absentDates->count();
+
+        if ($tardies == 0 && $absences == 0) {
+          $workers->forget($index);
+        }
+      }
+
+
+      $grouped = $workers->groupBy(function ($item, $key) {
+        return substr($item->lastname, 0,1);
+      });
+
+      return view('/coordinator/workerAttendance')
+        ->with('workers', $grouped);
+    }
 
     public function showPaymentPeriods() {
       $check = $this->checkLoggedIn();
@@ -1611,6 +1650,244 @@ class CoordinatorController extends Controller
       }
 
       return $cards;
+    }
+
+    private function getWorkerTimecards($worker) {
+      // accepts a worker object and returns all the timecards associated with the worker
+
+      $timecards = DB::table('timecards')
+        ->where('worker_id', $worker->id)
+        ->orderBy('startDate')
+        ->get();
+
+      return $timecards;
+
+    }
+    private function getWorkerTardies($worker) {
+      $timecards = $this->getWorkerTimecards($worker);
+      $departments = DB::table('departments')->get();
+
+      $tardies = collect();
+
+      foreach ($timecards as $timecard) {
+        $start = strtotime($timecard->startDate);
+
+        $tardies = collect();
+        if ($timecard->sunTardy == 1) {
+
+          $date = date('Y-M-d', $start);
+          $department = $departments->where('id', $timecard->dept_id)->first();
+          $timecardId = $timecard->id;
+
+          $tardy = collect();
+
+          $tardy->date = $date;
+          $tardy->department = $department->name;
+          $tardy->timecardId = $timecardId;
+
+          $tardies->push($tardy);
+        }
+
+        if ($timecard->monTardy == 1) {
+          $date = date('Y-M-d', strtotime('+1 day', $start));
+          $department = $departments->where('id', $timecard->dept_id)->first();
+          $timecardId = $timecard->id;
+
+          $tardy = collect();
+
+          $tardy->date = $date;
+          $tardy->department = $department->name;
+          $tardy->timecardId = $timecardId;
+
+          $tardies->push($tardy);
+        }
+
+        if ($timecard->tueTardy == 1) {
+          $date = date('Y-M-d', strtotime('+2 days', $start));
+          $department = $departments->where('id', $timecard->dept_id)->first();
+          $timecardId = $timecard->id;
+
+          $tardy = collect();
+
+          $tardy->date = $date;
+          $tardy->department = $department->name;
+          $tardy->timecardId = $timecardId;
+
+          $tardies->push($tardy);
+        }
+
+        if ($timecard->wedTardy == 1) {
+          $date = date('Y-M-d', strtotime('+3 days', $start));
+          $department = $departments->where('id', $timecard->dept_id)->first();
+          $timecardId = $timecard->id;
+
+          $tardy = collect();
+
+          $tardy->date = $date;
+          $tardy->department = $department->name;
+          $tardy->timecardId = $timecardId;
+
+          $tardies->push($tardy);
+        }
+
+        if ($timecard->thuTardy == 1) {
+          $date = date('Y-M-d', strtotime('+4 days', $start));
+          $department = $departments->where('id', $timecard->dept_id)->first();
+          $timecardId = $timecard->id;
+
+          $tardy = collect();
+
+          $tardy->date = $date;
+          $tardy->department = $department->name;
+          $tardy->timecardId = $timecardId;
+
+          $tardies->push($tardy);
+        }
+
+        if ($timecard->friTardy == 1) {
+          $date = date('Y-M-d', strtotime('+5 days', $start));
+          $department = $departments->where('id', $timecard->dept_id)->first();
+          $timecardId = $timecard->id;
+
+          $tardy = collect();
+
+          $tardy->date = $date;
+          $tardy->department = $department->name;
+          $tardy->timecardId = $timecardId;
+
+          $tardies->push($tardy);
+        }
+
+        if ($timecard->satTardy == 1) {
+          $date = date('Y-M-d', strtotime('+6 days', $start));
+          $department = $departments->where('id', $timecard->dept_id)->first();
+          $timecardId = $timecard->id;
+
+          $tardy = collect();
+
+          $tardy->date = $date;
+          $tardy->department = $department->name;
+          $tardy->timecardId = $timecardId;
+
+          $tardies->push($tardy);
+        }
+
+      }
+
+      return $tardies;
+    }
+    private function getWorkerAbsences($worker) {
+      $timecards = $this->getWorkerTimecards($worker);
+      $departments = DB::table('departments')->get();
+
+      $absences = collect();
+
+      foreach ($timecards as $timecard) {
+        $start = strtotime($timecard->startDate);
+
+        if ($timecard->sunAbsent == 1) {
+
+          $date = date('Y-M-d', $start);
+          $department = $departments->where('id', $timecard->dept_id)->first();
+          $timecardId = $timecard->id;
+
+          $absence = collect();
+
+          $absence->date = $date;
+          $absence->department = $department->name;
+          $absence->timecardId = $timecardId;
+
+          $absences->push($absence);
+
+        }
+
+        if ($timecard->monAbsent == 1) {
+          $date = date('Y-M-d', strtotime('+1 day', $start));
+          $department = $departments->where('id', $timecard->dept_id)->first();
+          $timecardId = $timecard->id;
+
+          $absence = collect();
+
+          $absence->date = $date;
+          $absence->department = $department->name;
+          $absence->timecardId = $timecardId;
+
+          $absences->push($absence);
+        }
+
+        if ($timecard->tueAbsent == 1) {
+          $date = date('Y-M-d', strtotime('+2 days', $start));
+          $department = $departments->where('id', $timecard->dept_id)->first();
+          $timecardId = $timecard->id;
+
+          $absence = collect();
+
+          $absence->date = $date;
+          $absence->department = $department->name;
+          $absence->timecardId = $timecardId;
+
+          $absences->push($absence);
+        }
+
+        if ($timecard->wedAbsent == 1) {
+          $date = date('Y-M-d', strtotime('+3 days', $start));
+          $department = $departments->where('id', $timecard->dept_id)->first();
+          $timecardId = $timecard->id;
+
+          $absence = collect();
+
+          $absence->date = $date;
+          $absence->department = $department->name;
+          $absence->timecardId = $timecardId;
+
+          $absences->push($absence);
+        }
+
+        if ($timecard->thuAbsent == 1) {
+          $date = date('Y-M-d', strtotime('+4 days', $start));
+          $department = $departments->where('id', $timecard->dept_id)->first();
+          $timecardId = $timecard->id;
+
+          $absence = collect();
+
+          $absence->date = $date;
+          $absence->department = $department->name;
+          $absence->timecardId = $timecardId;
+
+          $absences->push($absence);
+        }
+
+        if ($timecard->friAbsent == 1) {
+          $date = date('Y-M-d', strtotime('+5 days', $start));
+          $department = $departments->where('id', $timecard->dept_id)->first();
+          $timecardId = $timecard->id;
+
+          $absence = collect();
+
+          $absence->date = $date;
+          $absence->department = $department->name;
+          $absence->timecardId = $timecardId;
+
+          $absences->push($absence);
+        }
+
+        if ($timecard->satAbsent == 1) {
+          $date = date('Y-M-d', strtotime('+6 days', $start));
+          $department = $departments->where('id', $timecard->dept_id)->first();
+          $timecardId = $timecard->id;
+
+          $absence = collect();
+
+          $absence->date = $date;
+          $absence->department = $department->name;
+          $absence->timecardId = $timecardId;
+
+          $absences->push($absence);
+        }
+
+      }
+
+      return $absences;
     }
 
 }
