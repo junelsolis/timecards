@@ -12,9 +12,6 @@ class SupervisorController extends Controller
 
       // get active timecards
       $activeTimecards = $this->getSupervisorActiveTimecards();
-
-      return $activeTimecards;
-
       $sorted = $activeTimecards->sortBy('lastname');
 
       // get unsigned timecardSign
@@ -554,7 +551,7 @@ class SupervisorController extends Controller
 
       // calculate pay estimate
       $payscale = DB::table('payscale')->where('grade', $grade)->first();
-      $pay = ($total + $contract) * $payscale->pay;
+      $pay = $total * $payscale->pay;
 
       // update timecard in DB
       DB::table('timecards')->where('id', $id)
