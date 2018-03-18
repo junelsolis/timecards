@@ -545,7 +545,7 @@ class SupervisorController extends Controller
       }
 
       // add contract hours to total then round
-      // this is a bug $total = $total + $contract;
+      $total = $total + $contract;
       $total = round($total,2);
 
       // calculate pay estimate
