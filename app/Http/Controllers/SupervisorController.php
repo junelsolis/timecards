@@ -1172,7 +1172,7 @@ class SupervisorController extends Controller
       $id = session('userId');
       $deptIds = DB::table('superv_depts')->where('superv_id', $id)->get();
       $departments = DB::table('departments')->whereIn('id', $deptIds->pluck('dept_id'))->get();
-      $workers = $this->getWorkers();
+      $workers = DB::table('workers')->get();;
       $payscale = DB::table('payscale')->get();
 
       $timecards = DB::table('timecards')
@@ -1193,7 +1193,7 @@ class SupervisorController extends Controller
       }
 
       // card additional data
-      foreach ($items as $card) {
+      foreach ($items as $i => $card) {
 
         // department name
         $department = $departments->where('id', $card->dept_id)->first();
@@ -1201,6 +1201,8 @@ class SupervisorController extends Controller
 
         // worker name
         $worker = $workers->where('id', $card->worker_id)->first();
+
+
 
         $card->firstname = $worker->firstname;
         $card->lastname = $worker->lastname;
