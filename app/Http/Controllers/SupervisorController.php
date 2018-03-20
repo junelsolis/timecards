@@ -24,6 +24,7 @@ class SupervisorController extends Controller
       $sortedWorkers = $workers->sortBy('lastname');
       $splitWorkers = $sortedWorkers->split(2);
 
+
       // additional info for workers
       return view('/supervisor/main')
         ->with('activeTimecards', $sorted)
@@ -1172,7 +1173,8 @@ class SupervisorController extends Controller
       $id = session('userId');
       $deptIds = DB::table('superv_depts')->where('superv_id', $id)->get();
       $departments = DB::table('departments')->whereIn('id', $deptIds->pluck('dept_id'))->get();
-      $workers = DB::table('workers')->get();;
+      $workers = DB::table('workers')->get();
+
       $payscale = DB::table('payscale')->get();
 
       $timecards = DB::table('timecards')
