@@ -214,6 +214,7 @@
           <h2 class="ui dividing header">Workers</h2>
           <div class="ui two column stackable grid">
             <div class="ui column">
+              @if ($workers->count() > 0)
               @foreach ($workers[0] as $worker)
               <div class="ui list">
                 <div class="item">
@@ -241,8 +242,10 @@
               </div>
               <div class="ui divider"></div>
               @endforeach
+              @endif
             </div>
             <div class="ui column">
+              @if ($workers->count() > 1)
               @foreach ($workers[1] as $worker)
               <div class="ui list">
                 <div class="item">
@@ -270,6 +273,7 @@
               </div>
               <div class="ui divider"></div>
               @endforeach
+              @endif
             </div>
           </div>
           <a href="#top"><i class="angle double up icon"></i>Top</a>
