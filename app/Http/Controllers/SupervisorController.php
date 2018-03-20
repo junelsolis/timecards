@@ -104,6 +104,10 @@ class SupervisorController extends Controller
           ]
         );
 
+      // update timecard stats
+      $this->calculateTimecardStats($id);
+
+
       return redirect('/supervisor')->with('msg', 'Timecard successfully edited.');
 
     }
@@ -1300,6 +1304,119 @@ class SupervisorController extends Controller
       return $items;
     }
 
+    private function calculateTimecardStats($timecardId) {
+      // this function takes a timecard and calculates the total hours and pay.
+
+      $timecard = DB::table('timecards')->where('id', $timecardId)->first();
+
+      $id = $timecard->id;
+      $contract = $timecard->contract;
+      $grade = $timecard->grade;
+
+
+      $total = 0;
+
+      if (!empty($timecard->sunTimeIn1) && !empty($timecard->sunTimeOut1)) {
+        $seconds = strtotime($timecard->sunTimeOut1) - strtotime($timecard->sunTimeIn1);
+        $hours = $seconds / 60 / 60;
+        $total = $total + $hours;
+      }
+      if (!empty($timecard->sunTimeIn2) && !empty($timecard->sunTimeOut2)) {
+        $seconds = strtotime($timecard->sunTimeOut2) - strtotime($timecard->sunTimeIn2);
+        $hours = $seconds / 60 / 60;
+        $total = $total + $hours;
+      }
+
+
+      if (!empty($timecard->monTimeIn1) && !empty($timecard->monTimeOut1)) {
+        $seconds = strtotime($timecard->monTimeOut1) - strtotime($timecard->monTimeIn1);
+        $hours = $seconds / 60 / 60;
+        $total = $total + $hours;
+      }
+      if (!empty($timecard->monTimeIn2) && !empty($timecard->monTimeOut2)) {
+        $seconds = strtotime($timecard->monTimeOut2) - strtotime($timecard->monTimeIn2);
+        $hours = $seconds / 60 / 60;
+        $total = $total + $hours;
+      }
+
+
+      if (!empty($timecard->tueTimeIn1) && !empty($timecard->tueTimeOut1)) {
+        $seconds = strtotime($timecard->tueTimeOut1) - strtotime($timecard->tueTimeIn1);
+        $hours = $seconds / 60 / 60;
+        $total = $total + $hours;
+      }
+      if (!empty($timecard->tueTimeIn2) && !empty($timecard->tueTimeOut2)) {
+        $seconds = strtotime($timecard->tueTimeOut2) - strtotime($timecard->tueTimeIn2);
+        $hours = $seconds / 60 / 60;
+        $total = $total + $hours;
+      }
+
+
+      if (!empty($timecard->wedTimeIn1) && !empty($timecard->wedTimeOut1)) {
+        $seconds = strtotime($timecard->wedTimeOut1) - strtotime($timecard->wedTimeIn1);
+        $hours = $seconds / 60 / 60;
+        $total = $total + $hours;
+      }
+      if (!empty($timecard->wedTimeIn2) && !empty($timecard->wedTimeOut2)) {
+        $seconds = strtotime($timecard->wedTimeOut2) - strtotime($timecard->wedTimeIn2);
+        $hours = $seconds / 60 / 60;
+        $total = $total + $hours;
+      }
+
+
+      if (!empty($timecard->thuTimeIn1) && !empty($timecard->thuTimeOut1)) {
+        $seconds = strtotime($timecard->thuTimeOut1) - strtotime($timecard->thuTimeIn1);
+        $hours = $seconds / 60 / 60;
+        $total = $total + $hours;
+      }
+      if (!empty($timecard->thuTimeIn2) && !empty($timecard->thuTimeOut2)) {
+        $seconds = strtotime($timecard->thuTimeOut2) - strtotime($timecard->thuTimeIn2);
+        $hours = $seconds / 60 / 60;
+        $total = $total + $hours;
+      }
+
+
+      if (!empty($timecard->friTimeIn1) && !empty($timecard->friTimeOut1)) {
+        $seconds = strtotime($timecard->friTimeOut1) - strtotime($timecard->friTimeIn1);
+        $hours = $seconds / 60 / 60;
+        $total = $total + $hours;
+      }
+      if (!empty($timecard->friTimeIn2) && !empty($timecard->friTimeOut2)) {
+        $seconds = strtotime($timecard->friTimeOut2) - strtotime($timecard->friTimeIn2);
+        $hours = $seconds / 60 / 60;
+        $total = $total + $hours;
+      }
+
+
+      if (!empty($timecard->satTimeIn1) && !empty($timecard->satTimeOut1)) {
+        $seconds = strtotime($timecard->satTimeOut1) - strtotime($timecard->satTimeIn1);
+        $hours = $seconds / 60 / 60;
+        $total = $total + $hours;
+      }
+      if (!empty($timecard->satTimeIn2) && !empty($timecard->satTimeOut2)) {
+        $seconds = strtotime($timecard->satTimeOut2) - strtotime($timecard->satTimeIn2);
+        $hours = $seconds / 60 / 60;
+        $total = $total + $hours;
+      }
+
+
+
+      $payscale = DB::table('payscale')->where('grade', $grade)->first();
+      $factor = $payscale->pay;
+
+      $hours = $total + $contract;
+      $pay = $hours * $factor;
+
+      // update DB
+      DB::table('timecards')->where('id', $id)
+        ->update([
+          'hours' => $hours,
+          'pay' => $pay
+        ]);
+
+
+
+    }
     private function signTimecard($id) {
       // this function finalizes the pay calculation and signs the timecard
       $payscale = DB::table('payscale')->get();
