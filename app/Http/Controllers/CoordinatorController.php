@@ -745,6 +745,7 @@ class CoordinatorController extends Controller
 
       $unpaid = $periods->where('paid', 0);
       $paid = $periods->where('paid', 1);
+      $paid = $paid->sortByDesc('endDate');
 
       return view('/coordinator/paymentsPay')
         ->with('unpaid', $unpaid)
@@ -805,18 +806,24 @@ class CoordinatorController extends Controller
       // check to make sure all timecards are signed
       // return to main screen if not
       $unsigned = $cards->where('signed', 0)->count();
-      if ($unsigned >= 0) {
+
+      if ($unsigned != 0) {
         return redirect('/coordinator');
       }
 
       foreach ($cards as $card) {
         // update database entry
         DB::table('timecards')->where('id', $card->id)->update([
-          'signed' => 1
+          'paid' => 1
         ]);
       }
 
-      return redirect('/coordinator/payment-periods/report')->with('id', $id);
+      // update period as paid
+      DB::table('payment_periods')->where('id', $id)->update([
+        'paid' => 1
+      ]);
+
+      return redirect('/coordinator/payments-pay');
 
 
 
