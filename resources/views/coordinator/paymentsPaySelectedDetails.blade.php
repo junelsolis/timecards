@@ -87,6 +87,7 @@
                     @endforeach
                   </div>
                 </div>
+                @if ($items->count() > 1)
                 <div class="ui column">
                   <div class="ui list">
                     @foreach ($items[1] as $item)
@@ -98,6 +99,7 @@
                     @endforeach
                   </div>
                 </div>
+                @endif
               </div>
               <div class="ui divider"></div>
               @endif
