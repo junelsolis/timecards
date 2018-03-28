@@ -39,6 +39,7 @@ Route::post('/coordinator/payment-periods/add', 'CoordinatorController@paymentPe
 Route::get('/coordinator/payment-periods/report', 'CoordinatorController@showPaymentPeriodsReport');
 Route::get('/coordinator/payments/pay', 'CoordinatorController@showPay');
 Route::get('/coordinator/payments/pay/selected', 'CoordinatorController@showPaySelected');
+Route::post('/coordinator/payments/pay/selected', 'CoordinatorController@paySelected');
 Route::get('/coordinator/payments/pay/selected/details', 'CoordinatorController@showPaySelectedDetails');
 
 

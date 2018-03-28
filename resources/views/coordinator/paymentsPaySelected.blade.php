@@ -64,13 +64,17 @@
           </div>
           <div class="ui divider">
             <br />
-            <div class="ui buttons">
-              <a href="/coordinator/payments/pay/selected?id={{ $period->id }}" class="ui blue button">Confirm</a>
-              <div class="or">
+              <form class="ui form" action="/coordinator/payments/pay/selected" method="post">
+                {{ csrf_field() }}
+                <input type="hidden" name="id" value="{{ $period->id }}" />
+                <div class="ui buttons">
+                  <button class="ui blue button" type="submit">Confirm</button>
+                  <div class="or">
+                  </div>
+                  <a href="/coordinator/payments/pay" class="ui grey button">Cancel</a>
+                </div>
+              </form>
 
-              </div>
-              <a href="/coordinator/payments/pay" class="ui grey button">Cancel</a>
-            </div>
           </div>
         </div>
       </div>
