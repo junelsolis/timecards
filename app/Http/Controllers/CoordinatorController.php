@@ -823,7 +823,7 @@ class CoordinatorController extends Controller
         'paid' => 1
       ]);
 
-      return redirect('/coordinator/payments-pay');
+      return redirect('/coordinator/payments/pay');
 
 
 
