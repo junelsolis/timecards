@@ -70,8 +70,9 @@
                 <th></th>
                 <th></th>
                 <th></th>
-                <th><strong>Total Tithe</strong></th>
-                <th colspan="2"><strong>KSh&nbsp;{{ $item->totalTithe}}</strong></th>
+                <th><strong></strong></th>
+                <th><strong>KSh&nbsp;{{ $item->totalTithe}}</strong></th>
+                <th class="right aligned"><strong>KSh&nbsp;{{ $totalNetPay }}</strong></th>
               </tr>
             </tfoot>
           </table>

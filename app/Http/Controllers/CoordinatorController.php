@@ -664,9 +664,13 @@ class CoordinatorController extends Controller
         }
         $period->totalTithe = number_format($totalTithe);
 
+      // total net pay
+      $totalNetPay = number_format($workers->sum('netPay'));
+
       return view('/coordinator/paymentPeriodsReport')
         ->with('item', $period)
-        ->with('workers', $workers);
+        ->with('workers', $workers)
+        ->with('totalNetPay', $totalNetPay);
     }
     public function paymentPeriodsAdd(Request $request) {
       $check = $this->checkLoggedIn();
